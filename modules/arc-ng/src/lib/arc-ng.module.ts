@@ -1,7 +1,7 @@
 import { APP_INITIALIZER, InjectionToken, ModuleWithProviders, NgModule, Optional, SkipSelf } from '@angular/core';
-import { ArcNgComponent } from './arc-ng.component';
 import * as esriLoader from 'esri-loader';
 import { ILoadScriptOptions } from 'esri-loader';
+import { MapComponent } from './components/map/map.component';
 
 const loaderToken = new InjectionToken<ILoadScriptOptions>('ILoadScriptOptions');
 
@@ -17,10 +17,10 @@ export function init(config: ILoadScriptOptions) {
 }
 
 @NgModule({
-  declarations: [ArcNgComponent],
+  declarations: [MapComponent],
   imports: [
   ],
-  exports: [ArcNgComponent]
+  exports: [MapComponent]
 })
 export class ArcNgModule {
 
