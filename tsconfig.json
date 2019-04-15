@@ -17,6 +17,14 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "arc-ng": [
+        "dist/arc-ng"
+      ],
+      "arc-ng/*": [
+        "dist/arc-ng/*"
+      ]
+    }
   }
 }
