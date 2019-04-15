@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'lib-arc-ng',
+  selector: 'arcng-arc-ng',
   template: `
     <p>
       arc-ng works!

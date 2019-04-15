@@ -8,7 +8,11 @@
       "sourceRoot": "projects/sample-app/src",
       "projectType": "application",
       "prefix": "app",
-      "schematics": {},
+      "schematics": {
+        "@schematics/angular:component": {
+          "styleext": "scss"
+        }
+      },
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
@@ -23,7 +27,8 @@
               "projects/sample-app/src/assets"
             ],
             "styles": [
-              "projects/sample-app/src/styles.css"
+              "./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
+              "projects/sample-app/src/styles.scss"
             ],
             "scripts": [],
             "es5BrowserSupport": true
@@ -80,7 +85,8 @@
             "tsConfig": "projects/sample-app/tsconfig.spec.json",
             "karmaConfig": "projects/sample-app/karma.conf.js",
             "styles": [
-              "projects/sample-app/src/styles.css"
+              "./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
+              "projects/sample-app/src/styles.scss"
             ],
             "scripts": [],
             "assets": [
@@ -135,7 +141,7 @@
       "root": "modules/arc-ng",
       "sourceRoot": "modules/arc-ng/src",
       "projectType": "library",
-      "prefix": "lib",
+      "prefix": "arcng",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-ng-packagr:build",
