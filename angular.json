@@ -142,6 +142,11 @@
       "sourceRoot": "modules/arc-ng/src",
       "projectType": "library",
       "prefix": "arcng",
+      "schematics": {
+        "@schematics/angular:component": {
+          "styleext": "scss"
+        }
+      },
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-ng-packagr:build",
