@@ -12,6 +12,10 @@
       "element",
       "arcng",
       "kebab-case"
-    ]
+    ],
+    "variable-name": {
+      "options": ["ban-keywords", "check-format", "allow-leading-underscore", "allow-pascal-case"],
+      "severity": "error"
+    }
   }
 }

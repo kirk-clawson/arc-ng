@@ -11,4 +11,8 @@ export class AppComponent {
   onMapReady() {
     console.log('Map is Ready');
   }
+
+  onMapClick(event: __esri.MapViewClickEvent) {
+    console.log('Map Clicked', event);
+  }
 }
