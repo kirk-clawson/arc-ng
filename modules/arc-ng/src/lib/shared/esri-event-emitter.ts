@@ -1,13 +1,13 @@
 import { EventEmitter } from '@angular/core';
 
 export class EsriEventEmitter<T> extends EventEmitter<T> {
-  private handle: IHandle;
+  protected handle: IHandle;
 
-  constructor(private esriEventName: string, isAsync?: boolean) {
+  constructor(protected esriEventName: string, isAsync?: boolean) {
     super(isAsync);
   }
 
-  private handleCleanup(): void {
+  protected handleCleanup(): void {
     if (this.handle != null) this.handle.remove();
     this.handle = null;
   }

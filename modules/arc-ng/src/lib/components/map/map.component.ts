@@ -1,6 +1,17 @@
-import { ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { loadModules, trimEmptyFields } from '../../shared/utils';
 import { EsriEventEmitter } from '../../shared/esri-event-emitter';
+
+export class EsriHitTestEmitter<T = __esri.HitTestResult> extends EsriEventEmitter<__esri.HitTestResult> {
+  init(source: __esri.MapView) {
+    if (this.observers.length > 0) {
+      this.handleCleanup();
+      this.handle = source.on(this.esriEventName, e => {
+        source.hitTest(e).then(r => this.emit(r));
+      });
+    }
+  }
+}
 
 export type resizeAlign = 'center' | 'left' | 'right' | 'top' | 'bottom' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 export type baseMapNames = 'topo' | 'streets' | 'satellite' | 'hybrid' | 'dark-gray' | 'gray' | 'national-geographic' | 'oceans' |
@@ -13,7 +24,7 @@ export type baseMapNames = 'topo' | 'streets' | 'satellite' | 'hybrid' | 'dark-g
   styleUrls: ['./map.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MapComponent implements OnInit {
+export class MapComponent implements AfterViewInit {
   @Input()
   set zoom(value: number) {
     this._zoom = value;
@@ -84,25 +95,36 @@ export class MapComponent implements OnInit {
     this._baseMap = value;
   }
 
-  @Output() mapReady            = new EventEmitter();
-  @Output() mapBlur             = new EsriEventEmitter<__esri.MapViewBlurEvent>('blur');
-  @Output() mapClick            = new EsriEventEmitter<__esri.MapViewClickEvent>('click');
-  @Output() mapDoubleClick      = new EsriEventEmitter<__esri.MapViewDoubleClickEvent>('double-click');
-  @Output() mapDrag             = new EsriEventEmitter<__esri.MapViewDragEvent>('drag');
-  @Output() mapFocus            = new EsriEventEmitter<__esri.MapViewFocusEvent>('focus');
-  @Output() mapHold             = new EsriEventEmitter<__esri.MapViewHoldEvent>('hold');
-  @Output() mapImmediateClick   = new EsriEventEmitter<__esri.MapViewImmediateClickEvent>('immediate-click');
-  @Output() mapKeyDown          = new EsriEventEmitter<__esri.MapViewKeyDownEvent>('key-down');
-  @Output() mapKeyUp            = new EsriEventEmitter<__esri.MapViewKeyUpEvent>('key-up');
-  @Output() mapLayerViewCreate  = new EsriEventEmitter<__esri.MapViewLayerviewCreateEvent>('layerview-create');
-  @Output() mapLayerViewDestroy = new EsriEventEmitter<__esri.MapViewLayerviewDestroyEvent>('layerview-destroy');
-  @Output() mapMousewheel       = new EsriEventEmitter<__esri.MapViewMouseWheelEvent>('mousewheel');
-  @Output() mapPointerDown      = new EsriEventEmitter<__esri.MapViewPointerDownEvent>('pointer-down');
-  @Output() mapPointerEnter     = new EsriEventEmitter<__esri.MapViewPointerEnterEvent>('pointer-enter');
-  @Output() mapPointerLeave     = new EsriEventEmitter<__esri.MapViewPointerLeaveEvent>('pointer-leave');
-  @Output() mapPointerMove      = new EsriEventEmitter<__esri.MapViewPointerMoveEvent>('pointer-move');
-  @Output() mapPointerUp        = new EsriEventEmitter<__esri.MapViewPointerUpEvent>('pointer-up');
-  @Output() mapResize           = new EsriEventEmitter<__esri.MapViewResizeEvent>('resize');
+  @Output() mapReady             = new EventEmitter();
+  @Output() mapBlur              = new EsriEventEmitter<__esri.MapViewBlurEvent>('blur');
+  @Output() mapClick             = new EsriEventEmitter<__esri.MapViewClickEvent>('click');
+  @Output() mapClickHit          = new EsriHitTestEmitter('click');
+  @Output() mapDoubleClick       = new EsriEventEmitter<__esri.MapViewDoubleClickEvent>('double-click');
+  @Output() mapDoubleClickHit    = new EsriHitTestEmitter('double-click');
+  @Output() mapDrag              = new EsriEventEmitter<__esri.MapViewDragEvent>('drag');
+  @Output() mapDragHit           = new EsriHitTestEmitter('drag');
+  @Output() mapFocus             = new EsriEventEmitter<__esri.MapViewFocusEvent>('focus');
+  @Output() mapHold              = new EsriEventEmitter<__esri.MapViewHoldEvent>('hold');
+  @Output() mapHoldHit           = new EsriHitTestEmitter('hold');
+  @Output() mapImmediateClick    = new EsriEventEmitter<__esri.MapViewImmediateClickEvent>('immediate-click');
+  @Output() mapImmediateClickHit = new EsriHitTestEmitter('immediate-click');
+  @Output() mapKeyDown           = new EsriEventEmitter<__esri.MapViewKeyDownEvent>('key-down');
+  @Output() mapKeyUp             = new EsriEventEmitter<__esri.MapViewKeyUpEvent>('key-up');
+  @Output() mapLayerViewCreate   = new EsriEventEmitter<__esri.MapViewLayerviewCreateEvent>('layerview-create');
+  @Output() mapLayerViewDestroy  = new EsriEventEmitter<__esri.MapViewLayerviewDestroyEvent>('layerview-destroy');
+  @Output() mapMousewheel        = new EsriEventEmitter<__esri.MapViewMouseWheelEvent>('mousewheel');
+  @Output() mapMousewheelHit     = new EsriHitTestEmitter('mousewheel');
+  @Output() mapPointerDown       = new EsriEventEmitter<__esri.MapViewPointerDownEvent>('pointer-down');
+  @Output() mapPointerDownHit    = new EsriHitTestEmitter('pointer-down');
+  @Output() mapPointerEnter      = new EsriEventEmitter<__esri.MapViewPointerEnterEvent>('pointer-enter');
+  @Output() mapPointerEnterHit   = new EsriHitTestEmitter('pointer-enter');
+  @Output() mapPointerLeave      = new EsriEventEmitter<__esri.MapViewPointerLeaveEvent>('pointer-leave');
+  @Output() mapPointerLeaveHit   = new EsriHitTestEmitter('pointer-leave');
+  @Output() mapPointerMove       = new EsriEventEmitter<__esri.MapViewPointerMoveEvent>('pointer-move');
+  @Output() mapPointerMoveHit    = new EsriHitTestEmitter('pointer-move');
+  @Output() mapPointerUp         = new EsriEventEmitter<__esri.MapViewPointerUpEvent>('pointer-up');
+  @Output() mapPointerUpHit      = new EsriHitTestEmitter('pointer-up');
+  @Output() mapResize            = new EsriEventEmitter<__esri.MapViewResizeEvent>('resize');
 
   private map: import ('esri/Map');
   private mapView: import ('esri/views/MapView');
@@ -126,16 +148,20 @@ export class MapComponent implements OnInit {
 
   constructor() { }
 
-  async ngOnInit() {
+  async ngAfterViewInit() {
     type ModuleTypes = [ typeof import ('esri/Map'), typeof import ('esri/views/MapView')];
-    const [Map, MapView] = await loadModules<ModuleTypes>(['esri/Map', 'esri/views/MapView']);
-    const mapParams = trimEmptyFields({ basemap: this._baseMap });
-    this.map = Object.keys(mapParams).length === 0 ? new Map() : new Map(mapParams);
-    const viewParams = this.createConstructorParameters();
-    this.mapView = Object.keys(viewParams).length === 0 ? new MapView() : new MapView(viewParams);
-    await this.mapView.when();
-    this.createSubscribedHandlers();
-    this.mapReady.emit();
+    try {
+      const [Map, MapView] = await loadModules<ModuleTypes>(['esri/Map', 'esri/views/MapView']);
+      const mapParams = trimEmptyFields({ basemap: this._baseMap });
+      this.map = Object.keys(mapParams).length === 0 ? new Map() : new Map(mapParams);
+      const viewParams = this.createConstructorParameters();
+      this.mapView = Object.keys(viewParams).length === 0 ? new MapView() : new MapView(viewParams);
+      await this.mapView.when();
+      this.createSubscribedHandlers();
+      this.mapReady.emit();
+    } catch (e) {
+      console.error('There was an error Initializing the Map and MapView.', e);
+    }
   }
 
   private createConstructorParameters(): __esri.MapViewProperties {
@@ -159,23 +185,10 @@ export class MapComponent implements OnInit {
   }
 
   private createSubscribedHandlers(): void {
-    this.mapBlur.init(this.mapView);
-    this.mapClick.init(this.mapView);
-    this.mapDoubleClick.init(this.mapView);
-    this.mapDrag.init(this.mapView);
-    this.mapFocus.init(this.mapView);
-    this.mapHold.init(this.mapView);
-    this.mapImmediateClick.init(this.mapView);
-    this.mapKeyDown.init(this.mapView);
-    this.mapKeyUp.init(this.mapView);
-    this.mapLayerViewCreate.init(this.mapView);
-    this.mapLayerViewDestroy.init(this.mapView);
-    this.mapMousewheel.init(this.mapView);
-    this.mapPointerDown.init(this.mapView);
-    this.mapPointerEnter.init(this.mapView);
-    this.mapPointerLeave.init(this.mapView);
-    this.mapPointerMove.init(this.mapView);
-    this.mapPointerUp.init(this.mapView);
-    this.mapResize.init(this.mapView);
+    Object.values(this).forEach(v => {
+      if (v instanceof EsriEventEmitter) {
+        v.init(this.mapView);
+      }
+    });
   }
 }
