@@ -1,3 +1,6 @@
 <arcng-map class="map" baseMap="streets-navigation-vector"
            [zoom]="10" [center]="[-83.4255176, 42.432238]"
-           (mapReady)="onMapReady()" (mapClick)="onMapClick($event)"></arcng-map>
+           (mapReady)="onMapReady()" (mapClick)="onMapClick($event)"
+           (mapHoldHit)="onMapHit($event)">
+
+</arcng-map>

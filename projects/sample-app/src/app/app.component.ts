@@ -15,4 +15,8 @@ export class AppComponent {
   onMapClick(event: __esri.MapViewClickEvent) {
     console.log('Map Clicked', event);
   }
+
+  onMapHit(event: __esri.HitTestResult) {
+    console.log('Map Hit', event);
+  }
 }
