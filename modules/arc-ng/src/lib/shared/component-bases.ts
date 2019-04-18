@@ -7,10 +7,7 @@ export interface MapViewReadyProvider {
   mapViewReady: Subject<__esri.MapView>;
 }
 
-export abstract class WidgetBase {
-
-  protected __index?: number;
-  protected __position: UIPosition = UIPosition.Manual;
+export abstract class MapChildBase {
 
   protected constructor(provider: MapViewReadyProvider) {
     provider.mapViewReady.pipe(
@@ -18,9 +15,19 @@ export abstract class WidgetBase {
     ).subscribe(view => this.afterMapViewReady(view));
   }
 
+  protected async abstract afterMapViewReady(view: __esri.MapView);
+}
+
+export abstract class WidgetBase extends MapChildBase {
+
+  protected __index?: number;
+  protected __position: UIPosition = UIPosition.Manual;
+
   protected getPosition(): string | __esri.UIAddPosition {
     return this.__index == null ? this.__position : { position: this.__position, index: this.__index };
   }
+}
 
-  protected async abstract afterMapViewReady(view: __esri.MapView);
+export abstract class LayerBase extends MapChildBase {
+
 }

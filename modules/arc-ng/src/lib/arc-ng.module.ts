@@ -4,6 +4,7 @@ import { ILoadScriptOptions } from 'esri-loader';
 import { MapComponent } from './components/map/map.component';
 import { BasemapGalleryDirective } from './directives/basemap-gallery.directive';
 import { ExpandComponent } from './components/expand/expand.component';
+import { FeatureLayerDirective } from './directives/feature-layer.directive';
 
 const loaderToken = new InjectionToken<ILoadScriptOptions>('ILoadScriptOptions');
 
@@ -19,9 +20,9 @@ export function init(config: ILoadScriptOptions) {
 }
 
 @NgModule({
-  declarations: [MapComponent, BasemapGalleryDirective, ExpandComponent],
+  declarations: [MapComponent, BasemapGalleryDirective, ExpandComponent, FeatureLayerDirective],
   imports: [],
-  exports: [MapComponent, BasemapGalleryDirective, ExpandComponent]
+  exports: [MapComponent, BasemapGalleryDirective, ExpandComponent, FeatureLayerDirective]
 })
 export class ArcNgModule {
 
