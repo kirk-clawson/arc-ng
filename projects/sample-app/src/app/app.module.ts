@@ -12,7 +12,7 @@ import { ArcNgModule } from 'arc-ng';
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    ArcNgModule.forRoot({ css: true })
+    ArcNgModule.forRoot({css: true}),
   ],
   providers: [],
   bootstrap: [AppComponent]

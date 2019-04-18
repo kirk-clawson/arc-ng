@@ -10,3 +10,11 @@ export function trimEmptyFields<T>(item: T, undefinedOnly: boolean = true): Part
   });
   return item;
 }
+
+export function isEmpty(item: string | {}): boolean {
+  if (typeof item === 'string') {
+    return item.length === 0;
+  } else {
+    return item == null || Object.keys(item).length === 0;
+  }
+}

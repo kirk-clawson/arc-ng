@@ -1,6 +1,17 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
-import { loadModules, trimEmptyFields } from '../../shared/utils';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component, ContentChildren,
+  ElementRef,
+  EventEmitter,
+  Input,
+  Output, QueryList,
+  ViewChild,
+  ViewChildren
+} from '@angular/core';
+import { isEmpty, loadModules, trimEmptyFields } from '../../shared/utils';
 import { EsriEventEmitter } from '../../shared/esri-event-emitter';
+import { MapChildBase } from '../../shared/component-bases';
 
 export class EsriHitTestEmitter<T = __esri.HitTestResult> extends EsriEventEmitter<__esri.HitTestResult> {
   init(source: __esri.MapView) {
@@ -145,6 +156,7 @@ export class MapComponent implements AfterViewInit {
   private _zoom: number;
 
   @ViewChild('mapContainer') mapContainer: ElementRef;
+  @ContentChildren(MapChildBase) children: QueryList<MapChildBase>;
 
   constructor() { }
 
@@ -153,11 +165,12 @@ export class MapComponent implements AfterViewInit {
     try {
       const [Map, MapView] = await loadModules<ModuleTypes>(['esri/Map', 'esri/views/MapView']);
       const mapParams = trimEmptyFields({ basemap: this._baseMap });
-      this.map = Object.keys(mapParams).length === 0 ? new Map() : new Map(mapParams);
+      this.map = isEmpty(mapParams) ? new Map() : new Map(mapParams);
       const viewParams = this.createConstructorParameters();
-      this.mapView = Object.keys(viewParams).length === 0 ? new MapView() : new MapView(viewParams);
+      this.mapView = isEmpty(viewParams) ? new MapView() : new MapView(viewParams);
       await this.mapView.when();
       this.createSubscribedHandlers();
+      this.children.forEach(child => child.initMap(this.mapView));
       this.mapReady.emit();
     } catch (e) {
       console.error('There was an error Initializing the Map and MapView.', e);

@@ -2,6 +2,8 @@ import { APP_INITIALIZER, InjectionToken, ModuleWithProviders, NgModule, Optiona
 import * as esriLoader from 'esri-loader';
 import { ILoadScriptOptions } from 'esri-loader';
 import { MapComponent } from './components/map/map.component';
+import { BasemapGalleryDirective } from './directives/basemap-gallery.directive';
+import { ExpandComponent } from './components/expand/expand.component';
 
 const loaderToken = new InjectionToken<ILoadScriptOptions>('ILoadScriptOptions');
 
@@ -17,10 +19,9 @@ export function init(config: ILoadScriptOptions) {
 }
 
 @NgModule({
-  declarations: [MapComponent],
-  imports: [
-  ],
-  exports: [MapComponent]
+  declarations: [MapComponent, BasemapGalleryDirective, ExpandComponent],
+  imports: [],
+  exports: [MapComponent, BasemapGalleryDirective]
 })
 export class ArcNgModule {
 
@@ -30,7 +31,7 @@ export class ArcNgModule {
     }
   }
 
-  static forRoot(options?: ILoadScriptOptions): ModuleWithProviders {
+  static forRoot(options?: ILoadScriptOptions): ModuleWithProviders<ArcNgModule> {
     return {
       ngModule: ArcNgModule,
       providers: [

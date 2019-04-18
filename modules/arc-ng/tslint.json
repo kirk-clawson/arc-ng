@@ -3,9 +3,9 @@
   "rules": {
     "directive-selector": [
       true,
-      "attribute",
+      ["element", "attribute"],
       "arcng",
-      "camelCase"
+      ["camelCase", "kebab-case"]
     ],
     "component-selector": [
       true,
