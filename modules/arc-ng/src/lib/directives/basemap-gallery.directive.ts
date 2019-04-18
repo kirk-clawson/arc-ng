@@ -1,46 +1,44 @@
-import { Directive, forwardRef, Input, OnInit } from '@angular/core';
-import { MapChildBase, UIPositions } from '../shared/component-bases';
+import { Directive, Inject, Input, Optional } from '@angular/core';
+import { WidgetBase } from '../shared/component-bases';
 import { loadModules } from '../shared/utils';
+import { UIPosition } from '../shared/enums';
+import { MapComponent, MapComponentToken } from '../components/map/map.component';
+import { ExpandComponent, ExpandComponentToken } from '../components/expand/expand.component';
 
 @Directive({
   selector: 'arcng-basemap-gallery',
-  providers: [{ provide: MapChildBase, useExisting: forwardRef(() => BasemapGalleryDirective)}]
 })
-export class BasemapGalleryDirective implements MapChildBase, OnInit {
+export class BasemapGalleryDirective extends WidgetBase {
+
   @Input()
   set index(value: number) {
-    this._index = value;
+    this.__index = value;
   }
 
   @Input()
-  set position(value: UIPositions) {
-    this._position = value;
+  set position(value: UIPosition) {
+    this.__position = value;
   }
 
-  private BaseMapGalleryCtor: typeof import ('esri/widgets/BasemapGallery');
-  private basemapGallery: import ('esri/widgets/BasemapGallery');
+  private instance: import ('esri/widgets/BasemapGallery');
 
-  private _index?: number;
-  private _position: UIPositions = 'manual';
+  constructor(@Inject(MapComponentToken) map: MapComponent, @Optional() @Inject(ExpandComponentToken) private expand: ExpandComponent) {
+    super(map);
+  }
 
-  constructor() { }
-
-  async ngOnInit() {
+  protected async afterMapViewReady(view: __esri.MapView) {
     type modules = [typeof import ('esri/widgets/BasemapGallery')];
     try {
-      [this.BaseMapGalleryCtor] = await loadModules<modules>(['esri/widgets/BasemapGallery']);
+      const [ BaseMapGallery ] = await loadModules<modules>(['esri/widgets/BasemapGallery']);
+      if (this.expand != null) {
+        this.instance = new BaseMapGallery({ view, container: document.createElement('div') });
+        await this.expand.initWithWidget(this.instance, view);
+      } else {
+        this.instance = new BaseMapGallery({ view });
+        view.ui.add(this.instance, this.getPosition());
+      }
     } catch (e) {
-      console.error('There was an error Initializing the Basemap Gallery constructor function.', e);
-    }
-  }
-
-  initMap(parent: __esri.MapView) {
-    try {
-      this.basemapGallery = new this.BaseMapGalleryCtor({ view: parent });
-      const positionParams = this._index == null ? this._position : { position: this._position, index: this._index };
-      parent.ui.add(this.basemapGallery, positionParams);
-    } catch (e) {
-      console.error('There was an error creating the Basemap Gallery.', e);
+      console.error('There was an error Initializing the Basemap Gallery.', e);
     }
   }
 }

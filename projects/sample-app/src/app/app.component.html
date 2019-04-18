@@ -1,3 +1,5 @@
 <arcng-map class="map" baseMap="streets-navigation-vector" [zoom]="10" [center]="[-83.4255176, 42.432238]" (mapReady)="onMapReady()">
-  <arcng-basemap-gallery position="top-right"></arcng-basemap-gallery>
+  <arcng-expand [position]="uiPositions.TopRight" expandTooltip="Expand Basemap Gallery">
+    <arcng-basemap-gallery></arcng-basemap-gallery>
+  </arcng-expand>
 </arcng-map>

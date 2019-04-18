@@ -21,7 +21,7 @@ export function init(config: ILoadScriptOptions) {
 @NgModule({
   declarations: [MapComponent, BasemapGalleryDirective, ExpandComponent],
   imports: [],
-  exports: [MapComponent, BasemapGalleryDirective]
+  exports: [MapComponent, BasemapGalleryDirective, ExpandComponent]
 })
 export class ArcNgModule {
 

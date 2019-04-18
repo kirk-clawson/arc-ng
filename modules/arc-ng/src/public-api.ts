@@ -3,3 +3,4 @@
  */
 
 export * from './lib/arc-ng.module';
+export * from './lib/shared/enums';

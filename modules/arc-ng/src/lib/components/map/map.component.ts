@@ -1,17 +1,17 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
-  Component, ContentChildren,
+  Component,
   ElementRef,
-  EventEmitter,
+  EventEmitter, forwardRef, InjectionToken,
   Input,
-  Output, QueryList,
+  Output,
   ViewChild,
-  ViewChildren
 } from '@angular/core';
-import { isEmpty, loadModules, trimEmptyFields } from '../../shared/utils';
+import { createCtorParameterObject, isEmpty, loadModules, trimEmptyFields } from '../../shared/utils';
 import { EsriEventEmitter } from '../../shared/esri-event-emitter';
-import { MapChildBase } from '../../shared/component-bases';
+import { MapViewReadyProvider } from '../../shared/component-bases';
+import { Subject } from 'rxjs';
 
 export class EsriHitTestEmitter<T = __esri.HitTestResult> extends EsriEventEmitter<__esri.HitTestResult> {
   init(source: __esri.MapView) {
@@ -29,13 +29,16 @@ export type baseMapNames = 'topo' | 'streets' | 'satellite' | 'hybrid' | 'dark-g
                            'osm' | 'terrain' | 'dark-gray-vector' | 'gray-vector' | 'streets-vector' | 'streets-night-vector' |
                            'streets-navigation-vector' | 'topo-vector' | 'streets-relief-vector';
 
+export const MapComponentToken = new InjectionToken<MapViewReadyProvider>('map-component');
+
 @Component({
   selector: 'arcng-map',
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [{ provide: MapComponentToken, useExisting: forwardRef(() => MapComponent) }]
 })
-export class MapComponent implements AfterViewInit {
+export class MapComponent implements AfterViewInit, MapViewReadyProvider {
   @Input()
   set zoom(value: number) {
     this._zoom = value;
@@ -106,7 +109,9 @@ export class MapComponent implements AfterViewInit {
     this._baseMap = value;
   }
 
-  @Output() mapReady             = new EventEmitter();
+  mapViewReady = new Subject<import ('esri/views/MapView')>();
+
+  @Output() mapReady             = new EventEmitter<__esri.MapView>();
   @Output() mapBlur              = new EsriEventEmitter<__esri.MapViewBlurEvent>('blur');
   @Output() mapClick             = new EsriEventEmitter<__esri.MapViewClickEvent>('click');
   @Output() mapClickHit          = new EsriHitTestEmitter('click');
@@ -156,7 +161,6 @@ export class MapComponent implements AfterViewInit {
   private _zoom: number;
 
   @ViewChild('mapContainer') mapContainer: ElementRef;
-  @ContentChildren(MapChildBase) children: QueryList<MapChildBase>;
 
   constructor() { }
 
@@ -169,32 +173,20 @@ export class MapComponent implements AfterViewInit {
       const viewParams = this.createConstructorParameters();
       this.mapView = isEmpty(viewParams) ? new MapView() : new MapView(viewParams);
       await this.mapView.when();
+      console.log('Map ready - notifying children');
+      this.mapViewReady.next(this.mapView);
       this.createSubscribedHandlers();
-      this.children.forEach(child => child.initMap(this.mapView));
-      this.mapReady.emit();
+      this.mapReady.emit(this.mapView);
     } catch (e) {
       console.error('There was an error Initializing the Map and MapView.', e);
     }
   }
 
   private createConstructorParameters(): __esri.MapViewProperties {
-    const result: __esri.MapViewProperties = {
-      map: this.map,
-      breakpoints: this._breakpoints,
-      center: this._center,
-      constraints: this._constraints,
-      container: this.mapContainer.nativeElement,
-      extent: this._extent,
-      padding: this._padding,
-      popup: this._popup,
-      resizeAlign: this._resizeAlign,
-      rotation: this._rotation,
-      scale: this._scale,
-      spatialReference: this._spatialReference,
-      viewpoint: this._viewpoint,
-      zoom: this._zoom
-    };
-    return trimEmptyFields(result);
+    const result = createCtorParameterObject<__esri.MapViewProperties>(this);
+    result.map = this.map;
+    result.container = this.mapContainer.nativeElement;
+    return result;
   }
 
   private createSubscribedHandlers(): void {
