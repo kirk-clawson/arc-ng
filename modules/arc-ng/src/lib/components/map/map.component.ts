@@ -29,14 +29,14 @@ export type baseMapNames = 'topo' | 'streets' | 'satellite' | 'hybrid' | 'dark-g
                            'osm' | 'terrain' | 'dark-gray-vector' | 'gray-vector' | 'streets-vector' | 'streets-night-vector' |
                            'streets-navigation-vector' | 'topo-vector' | 'streets-relief-vector';
 
-export const MapComponentToken = new InjectionToken<MapViewReadyProvider>('map-component');
+export const MapToken = new InjectionToken<MapViewReadyProvider>('map-component');
 
 @Component({
   selector: 'arcng-map',
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [{ provide: MapComponentToken, useExisting: forwardRef(() => MapComponent) }]
+  providers: [{ provide: MapToken, useExisting: forwardRef(() => MapComponent) }]
 })
 export class MapComponent implements AfterViewInit, MapViewReadyProvider {
   @Input()

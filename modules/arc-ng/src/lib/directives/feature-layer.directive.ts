@@ -1,7 +1,8 @@
-import { Directive, Inject, Input } from '@angular/core';
+import { Directive, Inject, Input, Optional } from '@angular/core';
 import { LayerBase } from '../shared/component-bases';
-import { MapComponent, MapComponentToken } from '../components/map/map.component';
+import { MapComponent, MapToken } from '../components/map/map.component';
 import { loadModules } from '../shared/utils';
+import { GroupLayerComponent, GroupToken } from '../components/group-layer/group-layer.component';
 
 @Directive({
   selector: 'arcng-feature-layer'
@@ -17,7 +18,7 @@ export class FeatureLayerDirective extends LayerBase {
 
   private instance: import ('esri/layers/FeatureLayer');
 
-  constructor(@Inject(MapComponentToken) map: MapComponent) {
+  constructor(@Inject(MapToken) map: MapComponent, @Optional() @Inject(GroupToken) private group: GroupLayerComponent) {
     super(map);
   }
 
@@ -26,10 +27,13 @@ export class FeatureLayerDirective extends LayerBase {
     try {
       const [ FeatureLayer ] = await loadModules<modules>(['esri/layers/FeatureLayer']);
       this.instance = new FeatureLayer({ url: this._url });
-      view.map.add(this.instance);
+      if (this.group == null) {
+        view.map.add(this.instance);
+      } else {
+        await this.group.initWithLayer(this.instance, view);
+      }
     } catch (e) {
-      console.error('There was an error Initializing the Basemap Gallery.', e);
+      console.error('There was an error Initializing the Feature Layer.', e);
     }
   }
-
 }

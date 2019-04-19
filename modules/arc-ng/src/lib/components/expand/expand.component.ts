@@ -2,14 +2,14 @@ import { Component, forwardRef, Inject, InjectionToken, Input } from '@angular/c
 import { IconClass, UIPosition, WidgetMode } from '../../shared/enums';
 import { createCtorParameterObject, loadModules } from '../../shared/utils';
 import { WidgetBase } from '../../shared/component-bases';
-import { MapComponent, MapComponentToken } from '../map/map.component';
+import { MapComponent, MapToken } from '../map/map.component';
 
-export const ExpandComponentToken = new InjectionToken<ExpandComponent>('expand-component');
+export const ExpandToken = new InjectionToken<ExpandComponent>('expand-component');
 
 @Component({
   selector: 'arcng-expand',
   template: '<ng-content></ng-content>',
-  providers: [{ provide: ExpandComponentToken, useExisting: forwardRef(() => ExpandComponent)}]
+  providers: [{ provide: ExpandToken, useExisting: forwardRef(() => ExpandComponent)}]
 })
 export class ExpandComponent extends WidgetBase {
   @Input()
@@ -69,7 +69,7 @@ export class ExpandComponent extends WidgetBase {
   private _iconNumber: number;
   private _mode: WidgetMode;
 
-  constructor(@Inject(MapComponentToken) map: MapComponent) {
+  constructor(@Inject(MapToken) map: MapComponent) {
     super(map);
   }
 

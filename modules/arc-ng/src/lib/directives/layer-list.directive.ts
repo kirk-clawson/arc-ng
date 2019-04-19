@@ -1,8 +1,8 @@
 import { Directive, Inject, Input, Optional } from '@angular/core';
 import { WidgetBase } from '../shared/component-bases';
 import { UIPosition } from '../shared/enums';
-import { MapComponent, MapComponentToken } from '../components/map/map.component';
-import { ExpandComponent, ExpandComponentToken } from '../components/expand/expand.component';
+import { MapComponent, MapToken } from '../components/map/map.component';
+import { ExpandComponent, ExpandToken } from '../components/expand/expand.component';
 import { loadModules } from '../shared/utils';
 
 @Directive({
@@ -21,7 +21,7 @@ export class LayerListDirective extends WidgetBase {
 
   private instance: import ('esri/widgets/LayerList');
 
-  constructor(@Inject(MapComponentToken) map: MapComponent, @Optional() @Inject(ExpandComponentToken) private expand: ExpandComponent) {
+  constructor(@Inject(MapToken) map: MapComponent, @Optional() @Inject(ExpandToken) private expand: ExpandComponent) {
     super(map);
   }
 
