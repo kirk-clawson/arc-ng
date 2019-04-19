@@ -5,6 +5,7 @@ import { MapComponent } from './components/map/map.component';
 import { BasemapGalleryDirective } from './directives/basemap-gallery.directive';
 import { ExpandComponent } from './components/expand/expand.component';
 import { FeatureLayerDirective } from './directives/feature-layer.directive';
+import { LayerListDirective } from './directives/layer-list.directive';
 
 const loaderToken = new InjectionToken<ILoadScriptOptions>('ILoadScriptOptions');
 
@@ -20,9 +21,9 @@ export function init(config: ILoadScriptOptions) {
 }
 
 @NgModule({
-  declarations: [MapComponent, BasemapGalleryDirective, ExpandComponent, FeatureLayerDirective],
+  declarations: [MapComponent, BasemapGalleryDirective, ExpandComponent, FeatureLayerDirective, LayerListDirective],
   imports: [],
-  exports: [MapComponent, BasemapGalleryDirective, ExpandComponent, FeatureLayerDirective]
+  exports: [MapComponent, BasemapGalleryDirective, ExpandComponent, FeatureLayerDirective, LayerListDirective]
 })
 export class ArcNgModule {
 

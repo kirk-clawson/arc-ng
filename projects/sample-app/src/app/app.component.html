@@ -1,6 +1,10 @@
 <arcng-map class="map" baseMap="streets-navigation-vector" [zoom]="10" [center]="[-83.4255176, 42.432238]" (mapReady)="onMapReady()">
-  <arcng-expand [position]="uiPositions.TopRight" expandTooltip="Expand Basemap Gallery">
+  <arcng-expand [position]="uiPositions.TopRight" expandTooltip="Expand Basemap Gallery" [index]="0">
     <arcng-basemap-gallery></arcng-basemap-gallery>
   </arcng-expand>
-  <arcng-feature-layer url="https://services.arcgis.com/V6ZHFr6zdgNZuVG0/arcgis/rest/services/US_counties_employment_2016/FeatureServer/0"></arcng-feature-layer>
+  <arcng-expand [position]="uiPositions.TopRight" expandTooltip="Expand Layer List">
+    <arcng-layer-list></arcng-layer-list>
+  </arcng-expand>
+  <arcng-feature-layer url="https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/USA_Counties/FeatureServer/0"></arcng-feature-layer>
+  <arcng-feature-layer url="https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/Tornado_Warnings/FeatureServer/0"></arcng-feature-layer>
 </arcng-map>
