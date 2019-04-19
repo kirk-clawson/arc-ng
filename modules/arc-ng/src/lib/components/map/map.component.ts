@@ -1,17 +1,17 @@
 import {
-  AfterViewInit,
+  AfterContentInit,
   ChangeDetectionStrategy,
-  Component,
+  Component, ContentChildren,
   ElementRef,
-  EventEmitter, forwardRef, InjectionToken,
+  EventEmitter,
   Input,
-  Output,
+  Output, QueryList,
   ViewChild,
 } from '@angular/core';
 import { createCtorParameterObject, isEmpty, loadModules, trimEmptyFields } from '../../shared/utils';
 import { EsriEventEmitter } from '../../shared/esri-event-emitter';
-import { MapViewReadyProvider } from '../../shared/component-bases';
-import { Subject } from 'rxjs';
+import { LayerComponentBase, WidgetComponentBase } from '../../shared/component-bases';
+import { map } from 'rxjs/operators';
 
 export class EsriHitTestEmitter<T = __esri.HitTestResult> extends EsriEventEmitter<__esri.HitTestResult> {
   init(source: __esri.MapView) {
@@ -29,16 +29,13 @@ export type baseMapNames = 'topo' | 'streets' | 'satellite' | 'hybrid' | 'dark-g
                            'osm' | 'terrain' | 'dark-gray-vector' | 'gray-vector' | 'streets-vector' | 'streets-night-vector' |
                            'streets-navigation-vector' | 'topo-vector' | 'streets-relief-vector';
 
-export const MapToken = new InjectionToken<MapViewReadyProvider>('map-component');
-
 @Component({
   selector: 'arcng-map',
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [{ provide: MapToken, useExisting: forwardRef(() => MapComponent) }]
 })
-export class MapComponent implements AfterViewInit, MapViewReadyProvider {
+export class MapComponent implements AfterContentInit {
   @Input()
   set zoom(value: number) {
     this._zoom = value;
@@ -109,8 +106,6 @@ export class MapComponent implements AfterViewInit, MapViewReadyProvider {
     this._baseMap = value;
   }
 
-  mapViewReady = new Subject<import ('esri/views/MapView')>();
-
   @Output() mapReady             = new EventEmitter<__esri.MapView>();
   @Output() mapBlur              = new EsriEventEmitter<__esri.MapViewBlurEvent>('blur');
   @Output() mapClick             = new EsriEventEmitter<__esri.MapViewClickEvent>('click');
@@ -161,10 +156,12 @@ export class MapComponent implements AfterViewInit, MapViewReadyProvider {
   private _zoom: number;
 
   @ViewChild('mapContainer') mapContainer: ElementRef;
+  @ContentChildren(WidgetComponentBase) childWidgets: QueryList<WidgetComponentBase>;
+  @ContentChildren(LayerComponentBase) childLayers: QueryList<LayerComponentBase>;
 
   constructor() { }
 
-  async ngAfterViewInit() {
+  async ngAfterContentInit() {
     type ModuleTypes = [ typeof import ('esri/Map'), typeof import ('esri/views/MapView')];
     try {
       const [Map, MapView] = await loadModules<ModuleTypes>(['esri/Map', 'esri/views/MapView']);
@@ -172,10 +169,10 @@ export class MapComponent implements AfterViewInit, MapViewReadyProvider {
       this.map = isEmpty(mapParams) ? new Map() : new Map(mapParams);
       const viewParams = this.createConstructorParameters();
       this.mapView = isEmpty(viewParams) ? new MapView() : new MapView(viewParams);
+      await this.setupLayers();
       await this.mapView.when();
-      console.log('Map ready - notifying children');
-      this.mapViewReady.next(this.mapView);
       this.createSubscribedHandlers();
+      await this.setupWidgets();
       this.mapReady.emit(this.mapView);
     } catch (e) {
       console.error('There was an error Initializing the Map and MapView.', e);
@@ -195,5 +192,31 @@ export class MapComponent implements AfterViewInit, MapViewReadyProvider {
         v.init(this.mapView);
       }
     });
+  }
+
+  private async setupLayers() {
+    await Promise.all(this.childLayers.map(async l => {
+      const layer = await l.createLayer();
+      if (l.getIndex() == null) {
+        this.map.add(layer);
+      } else {
+        this.map.add(layer, l.getIndex());
+      }
+    }));
+  }
+
+  private async setupWidgets() {
+    await this.createWidgets(this.childWidgets.toArray());
+    this.childWidgets.changes.pipe(
+      map((widgets: WidgetComponentBase[]) => this.createWidgets(widgets.filter(w => !w.isAttached)))
+    ).subscribe();
+  }
+
+  private async createWidgets(widgetComponents: WidgetComponentBase[]) {
+    await Promise.all(widgetComponents.map(async w => {
+      const widget = await w.createWidget(this.mapView);
+      this.mapView.ui.add(widget, w.getPosition());
+      w.isAttached = true;
+    }));
   }
 }

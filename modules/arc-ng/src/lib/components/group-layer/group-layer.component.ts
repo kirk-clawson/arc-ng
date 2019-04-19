@@ -1,17 +1,13 @@
-import { Component, forwardRef, Inject, InjectionToken, Input, Optional, SkipSelf } from '@angular/core';
-import { LayerBase } from '../../shared/component-bases';
-import { MapComponent, MapToken } from '../map/map.component';
+import { Component, ContentChildren, forwardRef, Input, QueryList } from '@angular/core';
+import { LayerComponentBase } from '../../shared/component-bases';
 import { createCtorParameterObject, loadModules } from '../../shared/utils';
-
-export const GroupToken = new InjectionToken<GroupLayerComponent>('expand-component');
 
 @Component({
   selector: 'arcng-group-layer',
   template: '<ng-content></ng-content>',
-  providers: [{ provide: GroupToken, useExisting: forwardRef(() => GroupLayerComponent)}]
+  providers: [{ provide: LayerComponentBase, useExisting: forwardRef(() => GroupLayerComponent)}]
 })
-export class GroupLayerComponent extends LayerBase {
-
+export class GroupLayerComponent extends LayerComponentBase {
   @Input()
   set title(value: string) {
     this._title = value;
@@ -21,32 +17,26 @@ export class GroupLayerComponent extends LayerBase {
 
   private instance: import ('esri/layers/GroupLayer');
 
-  constructor(@Inject(MapToken) map: MapComponent, @Optional() @SkipSelf() @Inject(GroupToken) private group: GroupLayerComponent) {
-    super(map);
-  }
+  @ContentChildren(LayerComponentBase) children: QueryList<LayerComponentBase>;
 
-  async initWithLayer<T extends __esri.Layer>(child: T, view: __esri.MapView) {
+  async createLayer(): Promise<__esri.Layer> {
     type modules = [typeof import ('esri/layers/GroupLayer')];
-    try {
-      const [ GroupLayer ] = await loadModules<modules>(['esri/layers/GroupLayer']);
-      if (this.instance == null) {
-        const params = createCtorParameterObject<__esri.GroupLayerProperties>(this);
-        params.layers = [child];
-        this.instance = new GroupLayer(params);
-        if (this.group == null) {
-          view.map.add(this.instance);
-        } else {
-          await this.group.initWithLayer(this.instance, view);
-        }
-      } else {
-        this.instance.add(child);
-      }
-    } catch (e) {
-      console.error('There was an error Initializing the Group Layer.', e);
-    }
+    const [ GroupLayer ] = await loadModules<modules>(['esri/layers/GroupLayer']);
+    const realChildren = this.children.filter(c => c !== this);
+    const params = createCtorParameterObject<__esri.GroupLayerProperties>(this);
+    this.instance = new GroupLayer(params);
+    await this.setupChildren(realChildren);
+    return this.instance;
   }
 
-  protected async afterMapViewReady(view: __esri.MapView) {
-    // do nothing
+  async setupChildren(layers: LayerComponentBase[]) {
+    await Promise.all(layers.map(async l => {
+      const layer = await l.createLayer();
+      if (l.getIndex() == null) {
+        this.instance.add(layer);
+      } else {
+        this.instance.add(layer, l.getIndex());
+      }
+    }));
   }
 }

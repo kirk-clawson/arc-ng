@@ -1,13 +1,12 @@
-import { Directive, Inject, Input, Optional } from '@angular/core';
-import { LayerBase } from '../shared/component-bases';
-import { MapComponent, MapToken } from '../components/map/map.component';
+import { Directive, forwardRef, Input } from '@angular/core';
+import { LayerComponentBase } from '../shared/component-bases';
 import { loadModules } from '../shared/utils';
-import { GroupLayerComponent, GroupToken } from '../components/group-layer/group-layer.component';
 
 @Directive({
-  selector: 'arcng-feature-layer'
+  selector: 'arcng-feature-layer',
+  providers: [{ provide: LayerComponentBase, useExisting: forwardRef(() => FeatureLayerDirective)}]
 })
-export class FeatureLayerDirective extends LayerBase {
+export class FeatureLayerDirective extends LayerComponentBase {
 
   @Input()
   set url(value: string) {
@@ -18,22 +17,10 @@ export class FeatureLayerDirective extends LayerBase {
 
   private instance: import ('esri/layers/FeatureLayer');
 
-  constructor(@Inject(MapToken) map: MapComponent, @Optional() @Inject(GroupToken) private group: GroupLayerComponent) {
-    super(map);
-  }
-
-  protected async afterMapViewReady(view: __esri.MapView) {
+  async createLayer(): Promise<__esri.Layer> {
     type modules = [typeof import ('esri/layers/FeatureLayer')];
-    try {
-      const [ FeatureLayer ] = await loadModules<modules>(['esri/layers/FeatureLayer']);
-      this.instance = new FeatureLayer({ url: this._url });
-      if (this.group == null) {
-        view.map.add(this.instance);
-      } else {
-        await this.group.initWithLayer(this.instance, view);
-      }
-    } catch (e) {
-      console.error('There was an error Initializing the Feature Layer.', e);
-    }
+    const [ FeatureLayer ] = await loadModules<modules>(['esri/layers/FeatureLayer']);
+    this.instance = new FeatureLayer({ url: this._url });
+    return this.instance;
   }
 }

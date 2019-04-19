@@ -1,17 +1,14 @@
-import { Component, forwardRef, Inject, InjectionToken, Input } from '@angular/core';
+import { Component, ContentChildren, forwardRef, Input, QueryList } from '@angular/core';
 import { IconClass, UIPosition, WidgetMode } from '../../shared/enums';
 import { createCtorParameterObject, loadModules } from '../../shared/utils';
-import { WidgetBase } from '../../shared/component-bases';
-import { MapComponent, MapToken } from '../map/map.component';
-
-export const ExpandToken = new InjectionToken<ExpandComponent>('expand-component');
+import { WidgetComponentBase } from '../../shared/component-bases';
 
 @Component({
   selector: 'arcng-expand',
   template: '<ng-content></ng-content>',
-  providers: [{ provide: ExpandToken, useExisting: forwardRef(() => ExpandComponent)}]
+  providers: [{ provide: WidgetComponentBase, useExisting: forwardRef(() => ExpandComponent)}]
 })
-export class ExpandComponent extends WidgetBase {
+export class ExpandComponent extends WidgetComponentBase {
   @Input()
   set autoCollapse(value: boolean) {
     this._autoCollapse = value;
@@ -69,25 +66,19 @@ export class ExpandComponent extends WidgetBase {
   private _iconNumber: number;
   private _mode: WidgetMode;
 
-  constructor(@Inject(MapToken) map: MapComponent) {
-    super(map);
-  }
+  @ContentChildren(WidgetComponentBase) children: QueryList<WidgetComponentBase>;
 
-  async initWithWidget<T extends __esri.Widget>(child: T, view: __esri.MapView) {
+  async createWidget(view: __esri.MapView, isHidden?: boolean): Promise<__esri.Widget> {
     type modules = [typeof import ('esri/widgets/Expand')];
-    try {
-      const [ Expand ] = await loadModules<modules>(['esri/widgets/Expand']);
-      const params = createCtorParameterObject<__esri.ExpandProperties>(this);
-      params.view = view;
-      params.content = child;
-      this.instance = new Expand(params);
-      view.ui.add(this.instance, this.getPosition());
-    } catch (e) {
-      console.error('There was an error Initializing the Expand Widget.', e);
-    }
-  }
-
-  protected async afterMapViewReady(view: __esri.MapView) {
-    // do nothing
+    const [ Expand ] = await loadModules<modules>(['esri/widgets/Expand']);
+    const realChildren = this.children.filter(c => c !== this);
+    if (realChildren.length > 1) throw Error('An Expand widget can only display one child widget.');
+    const child = await realChildren[0].createWidget(view, true);
+    const params = createCtorParameterObject<__esri.ExpandProperties>(this);
+    params.view = view;
+    params.content = child;
+    this.instance = new Expand(params);
+    realChildren[0].isAttached = true;
+    return this.instance;
   }
 }

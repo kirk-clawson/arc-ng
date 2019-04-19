@@ -1,14 +1,13 @@
-import { Directive, Inject, Input, Optional } from '@angular/core';
-import { WidgetBase } from '../shared/component-bases';
+import { Directive, forwardRef, Input } from '@angular/core';
+import { WidgetComponentBase } from '../shared/component-bases';
 import { loadModules } from '../shared/utils';
 import { UIPosition } from '../shared/enums';
-import { MapComponent, MapToken } from '../components/map/map.component';
-import { ExpandComponent, ExpandToken } from '../components/expand/expand.component';
 
 @Directive({
   selector: 'arcng-basemap-gallery',
+  providers: [{ provide: WidgetComponentBase, useExisting: forwardRef(() => BasemapGalleryDirective)}]
 })
-export class BasemapGalleryDirective extends WidgetBase {
+export class BasemapGalleryDirective extends WidgetComponentBase {
 
   @Input()
   set index(value: number) {
@@ -22,23 +21,14 @@ export class BasemapGalleryDirective extends WidgetBase {
 
   private instance: import ('esri/widgets/BasemapGallery');
 
-  constructor(@Inject(MapToken) map: MapComponent, @Optional() @Inject(ExpandToken) private expand: ExpandComponent) {
-    super(map);
-  }
-
-  protected async afterMapViewReady(view: __esri.MapView) {
+  async createWidget(view: __esri.MapView, isHidden?: boolean): Promise<__esri.Widget> {
     type modules = [typeof import ('esri/widgets/BasemapGallery')];
-    try {
-      const [ BaseMapGallery ] = await loadModules<modules>(['esri/widgets/BasemapGallery']);
-      if (this.expand != null) {
-        this.instance = new BaseMapGallery({ view, container: document.createElement('div') });
-        await this.expand.initWithWidget(this.instance, view);
-      } else {
-        this.instance = new BaseMapGallery({ view });
-        view.ui.add(this.instance, this.getPosition());
-      }
-    } catch (e) {
-      console.error('There was an error Initializing the Basemap Gallery.', e);
+    const [ BaseMapGallery ] = await loadModules<modules>(['esri/widgets/BasemapGallery']);
+    const params: __esri.BasemapGalleryProperties = { view };
+    if (isHidden) {
+      params.container = document.createElement('div');
     }
+    this.instance = new BaseMapGallery(params);
+    return this.instance;
   }
 }

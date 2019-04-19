@@ -1,14 +1,13 @@
-import { Directive, Inject, Input, Optional } from '@angular/core';
-import { WidgetBase } from '../shared/component-bases';
+import { Directive, forwardRef, Input } from '@angular/core';
+import { WidgetComponentBase } from '../shared/component-bases';
 import { UIPosition } from '../shared/enums';
-import { MapComponent, MapToken } from '../components/map/map.component';
-import { ExpandComponent, ExpandToken } from '../components/expand/expand.component';
 import { loadModules } from '../shared/utils';
 
 @Directive({
-  selector: 'arcng-layer-list'
+  selector: 'arcng-layer-list',
+  providers: [{ provide: WidgetComponentBase, useExisting: forwardRef(() => LayerListDirective)}]
 })
-export class LayerListDirective extends WidgetBase {
+export class LayerListDirective extends WidgetComponentBase {
   @Input()
   set index(value: number) {
     this.__index = value;
@@ -21,23 +20,14 @@ export class LayerListDirective extends WidgetBase {
 
   private instance: import ('esri/widgets/LayerList');
 
-  constructor(@Inject(MapToken) map: MapComponent, @Optional() @Inject(ExpandToken) private expand: ExpandComponent) {
-    super(map);
-  }
-
-  protected async afterMapViewReady(view: __esri.MapView) {
+  async createWidget(view: __esri.MapView, isHidden?: boolean): Promise<__esri.Widget> {
     type modules = [typeof import ('esri/widgets/LayerList')];
-    try {
-      const [ LayerListWidget ] = await loadModules<modules>(['esri/widgets/LayerList']);
-      if (this.expand != null) {
-        this.instance = new LayerListWidget({ view, container: document.createElement('div') });
-        await this.expand.initWithWidget(this.instance, view);
-      } else {
-        this.instance = new LayerListWidget({ view });
-        view.ui.add(this.instance, this.getPosition());
-      }
-    } catch (e) {
-      console.error('There was an error Initializing the Layer List.', e);
+    const [ LayerListWidget ] = await loadModules<modules>(['esri/widgets/LayerList']);
+    const params: __esri.LayerListProperties = { view };
+    if (isHidden) {
+      params.container = document.createElement('div');
     }
+    this.instance = new LayerListWidget(params);
+    return this.instance;
   }
 }
