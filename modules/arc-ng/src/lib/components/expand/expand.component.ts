@@ -56,7 +56,7 @@ export class ExpandComponent extends WidgetComponentBase<__esri.Expand> {
 
   @ContentChildren(WidgetComponentBase) children: QueryList<WidgetComponentBase<any>>;
 
-  async createWidget(view: __esri.MapView, isHidden?: boolean): Promise<__esri.Widget> {
+  async createWidget(view: __esri.MapView, isHidden?: boolean): Promise<__esri.Expand> {
     type modules = [typeof import ('esri/widgets/Expand')];
     const [ Expand ] = await loadEsriModules<modules>(['esri/widgets/Expand']);
     if (this.children.filter(c => c !== this).length > 1) throw Error('An Expand widget can only display one child widget.');

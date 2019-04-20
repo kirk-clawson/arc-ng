@@ -7,19 +7,15 @@ import { layerBuilder, LayerComponentBase } from '../../shared/layer-component-b
   template: '<ng-content></ng-content>',
   providers: [{ provide: LayerComponentBase, useExisting: forwardRef(() => GroupLayerComponent)}]
 })
-export class GroupLayerComponent extends LayerComponentBase {
+export class GroupLayerComponent extends LayerComponentBase<__esri.GroupLayer> {
   @Input()
   set title(value: string) {
-    this._title = value;
+    this.setField('title', value);
   }
 
-  private _title: string;
+  @ContentChildren(LayerComponentBase) children: QueryList<LayerComponentBase<__esri.Layer>>;
 
-  private instance: import ('esri/layers/GroupLayer');
-
-  @ContentChildren(LayerComponentBase) children: QueryList<LayerComponentBase>;
-
-  async createLayer(): Promise<__esri.Layer> {
+  async createLayer(): Promise<__esri.GroupLayer> {
     type modules = [typeof import ('esri/layers/GroupLayer')];
     const [ GroupLayer ] = await loadEsriModules<modules>(['esri/layers/GroupLayer']);
     const realChildren = this.children.filter(c => c !== this);
@@ -29,7 +25,7 @@ export class GroupLayerComponent extends LayerComponentBase {
     return this.instance;
   }
 
-  async setupChildren(layers: LayerComponentBase[]) {
+  async setupChildren(layers: LayerComponentBase<__esri.Layer>[]) {
     await Promise.all(layers.map(layerBuilder(this.instance)));
   }
 }

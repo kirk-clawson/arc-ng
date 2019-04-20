@@ -8,7 +8,7 @@ import { loadEsriModules } from '../shared/utils';
 })
 export class LayerListDirective extends WidgetComponentBase<__esri.LayerList> {
 
-  async createWidget(view: __esri.MapView, isHidden?: boolean): Promise<__esri.Widget> {
+  async createWidget(view: __esri.MapView, isHidden?: boolean): Promise<__esri.LayerList> {
     type modules = [typeof import ('esri/widgets/LayerList')];
     const [ LayerListWidget ] = await loadEsriModules<modules>(['esri/widgets/LayerList']);
     const params: __esri.LayerListProperties = { view };

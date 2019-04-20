@@ -1,7 +1,8 @@
 /* tslint:disable:variable-name */
 import { Input } from '@angular/core';
+import { EsriComponentBase } from './esri-component-base';
 
-export const layerBuilder = (parent: __esri.LayersMixin) => async (l: LayerComponentBase) => {
+export const layerBuilder = (parent: __esri.LayersMixin) => async (l: LayerComponentBase<__esri.Layer>) => {
   const layer = await l.createLayer();
   if (l.index == null) {
     parent.add(layer);
@@ -10,7 +11,7 @@ export const layerBuilder = (parent: __esri.LayersMixin) => async (l: LayerCompo
   }
 };
 
-export abstract class LayerComponentBase {
+export abstract class LayerComponentBase<T extends __esri.Layer> extends EsriComponentBase<T> {
 
   get index(): number {
     return this.__index;
@@ -22,5 +23,5 @@ export abstract class LayerComponentBase {
 
   private __index?: number;
 
-  async abstract createLayer(): Promise<__esri.Layer>;
+  async abstract createLayer(): Promise<T>;
 }

@@ -1,26 +1,23 @@
 import { Directive, forwardRef, Input } from '@angular/core';
-import { loadEsriModules } from '../shared/utils';
+import { createCtorParameterObject, loadEsriModules } from '../shared/utils';
 import { LayerComponentBase } from '../shared/layer-component-base';
 
 @Directive({
   selector: 'arcng-feature-layer',
   providers: [{ provide: LayerComponentBase, useExisting: forwardRef(() => FeatureLayerDirective)}]
 })
-export class FeatureLayerDirective extends LayerComponentBase {
+export class FeatureLayerDirective extends LayerComponentBase<__esri.FeatureLayer> {
 
   @Input()
   set url(value: string) {
-    this._url = value;
+    this.setField('url', value);
   }
 
-  private _url: string;
-
-  private instance: import ('esri/layers/FeatureLayer');
-
-  async createLayer(): Promise<__esri.Layer> {
+  async createLayer(): Promise<__esri.FeatureLayer> {
     type modules = [typeof import ('esri/layers/FeatureLayer')];
     const [ FeatureLayer ] = await loadEsriModules<modules>(['esri/layers/FeatureLayer']);
-    this.instance = new FeatureLayer({ url: this._url });
+    const params = createCtorParameterObject(this);
+    this.instance = new FeatureLayer(params);
     return this.instance;
   }
 }

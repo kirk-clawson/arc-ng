@@ -157,8 +157,8 @@ export class MapComponent implements AfterContentInit {
   private _zoom: number;
 
   @ViewChild('mapContainer') mapContainer: ElementRef;
-  @ContentChildren(WidgetComponentBase) childWidgets: QueryList<WidgetComponentBase<any>>;
-  @ContentChildren(LayerComponentBase) childLayers: QueryList<LayerComponentBase>;
+  @ContentChildren(WidgetComponentBase) childWidgets: QueryList<WidgetComponentBase<__esri.Widget>>;
+  @ContentChildren(LayerComponentBase) childLayers: QueryList<LayerComponentBase<__esri.Layer>>;
 
   constructor() { }
 
@@ -202,11 +202,11 @@ export class MapComponent implements AfterContentInit {
   private async setupWidgets() {
     await this.createWidgets(this.childWidgets.toArray());
     this.childWidgets.changes.pipe(
-      map((widgets: WidgetComponentBase<any>[]) => this.createWidgets(widgets.filter(w => !w.isAttached)))
+      map((widgets: WidgetComponentBase<__esri.Widget>[]) => this.createWidgets(widgets.filter(w => !w.isAttached)))
     ).subscribe();
   }
 
-  private async createWidgets(widgetComponents: WidgetComponentBase<any>[]) {
+  private async createWidgets(widgetComponents: WidgetComponentBase<__esri.Widget>[]) {
     await Promise.all(widgetComponents.map(widgetBuilder(this.mapView)));
   }
 }
