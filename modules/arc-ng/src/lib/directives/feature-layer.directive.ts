@@ -1,6 +1,6 @@
 import { Directive, forwardRef, Input } from '@angular/core';
 import { LayerComponentBase } from '../shared/component-bases';
-import { loadModules } from '../shared/utils';
+import { loadEsriModules } from '../shared/utils';
 
 @Directive({
   selector: 'arcng-feature-layer',
@@ -19,7 +19,7 @@ export class FeatureLayerDirective extends LayerComponentBase {
 
   async createLayer(): Promise<__esri.Layer> {
     type modules = [typeof import ('esri/layers/FeatureLayer')];
-    const [ FeatureLayer ] = await loadModules<modules>(['esri/layers/FeatureLayer']);
+    const [ FeatureLayer ] = await loadEsriModules<modules>(['esri/layers/FeatureLayer']);
     this.instance = new FeatureLayer({ url: this._url });
     return this.instance;
   }

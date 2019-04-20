@@ -1,6 +1,6 @@
 import { Component, ContentChildren, forwardRef, Input, QueryList } from '@angular/core';
 import { LayerComponentBase } from '../../shared/component-bases';
-import { createCtorParameterObject, loadModules } from '../../shared/utils';
+import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
 
 @Component({
   selector: 'arcng-group-layer',
@@ -21,7 +21,7 @@ export class GroupLayerComponent extends LayerComponentBase {
 
   async createLayer(): Promise<__esri.Layer> {
     type modules = [typeof import ('esri/layers/GroupLayer')];
-    const [ GroupLayer ] = await loadModules<modules>(['esri/layers/GroupLayer']);
+    const [ GroupLayer ] = await loadEsriModules<modules>(['esri/layers/GroupLayer']);
     const realChildren = this.children.filter(c => c !== this);
     const params = createCtorParameterObject<__esri.GroupLayerProperties>(this);
     this.instance = new GroupLayer(params);

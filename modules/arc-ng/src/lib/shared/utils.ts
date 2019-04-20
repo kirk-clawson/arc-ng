@@ -1,7 +1,7 @@
-import { ILoadScriptOptions, loadModules as esriLoad } from 'esri-loader';
+import { ILoadScriptOptions, loadModules } from 'esri-loader';
 
-export function loadModules<T extends any[]>(modules: string[], loadScriptOptions?: ILoadScriptOptions): Promise<T> {
-  return esriLoad(modules, loadScriptOptions) as Promise<T>;
+export function loadEsriModules<T extends any[]>(modules: string[], loadScriptOptions?: ILoadScriptOptions): Promise<T> {
+  return loadModules(modules, loadScriptOptions) as Promise<T>;
 }
 
 export function createCtorParameterObject<T extends {}>(component: {}): Partial<T> {

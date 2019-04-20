@@ -1,6 +1,6 @@
 import { Component, ContentChildren, forwardRef, Input, QueryList } from '@angular/core';
 import { IconClass, UIPosition, WidgetMode } from '../../shared/enums';
-import { createCtorParameterObject, loadModules } from '../../shared/utils';
+import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
 import { WidgetComponentBase } from '../../shared/component-bases';
 
 @Component({
@@ -70,7 +70,7 @@ export class ExpandComponent extends WidgetComponentBase {
 
   async createWidget(view: __esri.MapView, isHidden?: boolean): Promise<__esri.Widget> {
     type modules = [typeof import ('esri/widgets/Expand')];
-    const [ Expand ] = await loadModules<modules>(['esri/widgets/Expand']);
+    const [ Expand ] = await loadEsriModules<modules>(['esri/widgets/Expand']);
     const realChildren = this.children.filter(c => c !== this);
     if (realChildren.length > 1) throw Error('An Expand widget can only display one child widget.');
     const child = await realChildren[0].createWidget(view, true);

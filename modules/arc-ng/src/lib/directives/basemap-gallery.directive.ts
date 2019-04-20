@@ -1,6 +1,6 @@
 import { Directive, forwardRef, Input } from '@angular/core';
 import { WidgetComponentBase } from '../shared/component-bases';
-import { loadModules } from '../shared/utils';
+import { loadEsriModules } from '../shared/utils';
 import { UIPosition } from '../shared/enums';
 
 @Directive({
@@ -23,7 +23,7 @@ export class BasemapGalleryDirective extends WidgetComponentBase {
 
   async createWidget(view: __esri.MapView, isHidden?: boolean): Promise<__esri.Widget> {
     type modules = [typeof import ('esri/widgets/BasemapGallery')];
-    const [ BaseMapGallery ] = await loadModules<modules>(['esri/widgets/BasemapGallery']);
+    const [ BaseMapGallery ] = await loadEsriModules<modules>(['esri/widgets/BasemapGallery']);
     const params: __esri.BasemapGalleryProperties = { view };
     if (isHidden) {
       params.container = document.createElement('div');

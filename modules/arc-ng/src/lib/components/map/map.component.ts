@@ -8,7 +8,7 @@ import {
   Output, QueryList,
   ViewChild,
 } from '@angular/core';
-import { createCtorParameterObject, isEmpty, loadModules, trimEmptyFields } from '../../shared/utils';
+import { createCtorParameterObject, isEmpty, loadEsriModules, trimEmptyFields } from '../../shared/utils';
 import { EsriEventEmitter } from '../../shared/esri-event-emitter';
 import { LayerComponentBase, WidgetComponentBase } from '../../shared/component-bases';
 import { map } from 'rxjs/operators';
@@ -164,7 +164,7 @@ export class MapComponent implements AfterContentInit {
   async ngAfterContentInit() {
     type ModuleTypes = [ typeof import ('esri/Map'), typeof import ('esri/views/MapView')];
     try {
-      const [Map, MapView] = await loadModules<ModuleTypes>(['esri/Map', 'esri/views/MapView']);
+      const [Map, MapView] = await loadEsriModules<ModuleTypes>(['esri/Map', 'esri/views/MapView']);
       const mapParams = trimEmptyFields({ basemap: this._baseMap });
       this.map = isEmpty(mapParams) ? new Map() : new Map(mapParams);
       const viewParams = this.createConstructorParameters();
