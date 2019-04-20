@@ -1,23 +1,38 @@
-import { Directive, forwardRef } from '@angular/core';
+import { Directive, forwardRef, Input, Output } from '@angular/core';
 import { WidgetComponentBase } from '../shared/widget-component-base';
-import { loadEsriModules } from '../shared/utils';
+import { createCtorParameterObject, loadEsriModules } from '../shared/utils';
+import { IconClass } from '../shared/enums';
+import { EsriWatchEmitter } from '../shared/esri-watch-emitter';
 
 @Directive({
   selector: 'arcng-basemap-gallery',
   providers: [{ provide: WidgetComponentBase, useExisting: forwardRef(() => BasemapGalleryDirective)}]
 })
-export class BasemapGalleryDirective extends WidgetComponentBase {
-
-  private instance: import ('esri/widgets/BasemapGallery');
+export class BasemapGalleryDirective extends WidgetComponentBase<__esri.BasemapGallery> {
+  @Input()
+  set label(value: string) {
+    this.setField('label', value);
+  }
+  @Input()
+  set iconClass(value: IconClass) {
+    this.setField('iconClass', value);
+  }
+  @Input()
+  set activeBasemap(value: __esri.Basemap) {
+    this.setField('activeBasemap', value);
+  }
+  @Output() activeBasemapChange = new EsriWatchEmitter<__esri.Basemap>('activeBasemap');
 
   async createWidget(view: __esri.MapView, isHidden?: boolean): Promise<__esri.Widget> {
     type modules = [typeof import ('esri/widgets/BasemapGallery')];
     const [ BaseMapGallery ] = await loadEsriModules<modules>(['esri/widgets/BasemapGallery']);
-    const params: __esri.BasemapGalleryProperties = { view };
+    const params = createCtorParameterObject<__esri.BasemapGalleryProperties>(this);
+    params.view = view;
     if (isHidden) {
       params.container = document.createElement('div');
     }
     this.instance = new BaseMapGallery(params);
+    this.createWatchedHandlers();
     return this.instance;
   }
 }

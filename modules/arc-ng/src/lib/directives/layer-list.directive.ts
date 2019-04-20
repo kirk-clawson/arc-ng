@@ -6,9 +6,7 @@ import { loadEsriModules } from '../shared/utils';
   selector: 'arcng-layer-list',
   providers: [{ provide: WidgetComponentBase, useExisting: forwardRef(() => LayerListDirective)}]
 })
-export class LayerListDirective extends WidgetComponentBase {
-
-  private instance: import ('esri/widgets/LayerList');
+export class LayerListDirective extends WidgetComponentBase<__esri.LayerList> {
 
   async createWidget(view: __esri.MapView, isHidden?: boolean): Promise<__esri.Widget> {
     type modules = [typeof import ('esri/widgets/LayerList')];
@@ -20,4 +18,5 @@ export class LayerListDirective extends WidgetComponentBase {
     this.instance = new LayerListWidget(params);
     return this.instance;
   }
+
 }

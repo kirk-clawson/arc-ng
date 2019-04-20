@@ -1,64 +1,60 @@
-import { Component, ContentChildren, forwardRef, Input, QueryList } from '@angular/core';
+import { Component, ContentChildren, forwardRef, Input, Output, QueryList } from '@angular/core';
 import { IconClass, WidgetMode } from '../../shared/enums';
 import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
 import { WidgetComponentBase } from '../../shared/widget-component-base';
+import { EsriWatchEmitter } from '../../shared/esri-watch-emitter';
 
 @Component({
   selector: 'arcng-expand',
   template: '<ng-content></ng-content>',
   providers: [{ provide: WidgetComponentBase, useExisting: forwardRef(() => ExpandComponent)}]
 })
-export class ExpandComponent extends WidgetComponentBase {
+export class ExpandComponent extends WidgetComponentBase<__esri.Expand> {
   @Input()
   set autoCollapse(value: boolean) {
-    this._autoCollapse = value;
+    this.setField('autoCollapse', value);
   }
   @Input()
   set collapseIconClass(value: IconClass) {
-    this._collapseIconClass = value;
+    this.setField('collapseIconClass', value);
   }
   @Input()
   set collapseTooltip(value: string) {
-    this._collapseTooltip = value;
-  }
-  @Input()
-  set expanded(value: boolean) {
-    this._expanded = value;
+    this.setField('collapseTooltip', value);
   }
   @Input()
   set expandIconClass(value: IconClass) {
-    this._expandIconClass = value;
+    this.setField('expandIconClass', value);
   }
   @Input()
   set expandTooltip(value: string) {
-    this._expandTooltip = value;
+    this.setField('expandTooltip', value);
   }
   @Input()
   set group(value: string) {
-    this._group = value;
+    this.setField('group', value);
   }
   @Input()
   set iconNumber(value: number) {
-    this._iconNumber = value;
+    this.setField('iconNumber', value);
   }
   @Input()
   set mode(value: WidgetMode) {
-    this._mode = value;
+    this.setField('mode', value);
   }
 
-  private instance: import ('esri/widgets/Expand');
+  @Input()
+  set expanded(value: boolean) {
+    if (this._expanded !== value) {
+      this._expanded = value;
+      this.handleStateChange(value);
+    }
+  }
+  @Output() expandedChange = new EsriWatchEmitter<boolean>('expanded');
 
-  private _autoCollapse: boolean;
-  private _collapseIconClass: IconClass;
-  private _collapseTooltip: string;
   private _expanded: boolean;
-  private _expandIconClass: IconClass;
-  private _expandTooltip: string;
-  private _group: string;
-  private _iconNumber: number;
-  private _mode: WidgetMode;
 
-  @ContentChildren(WidgetComponentBase) children: QueryList<WidgetComponentBase>;
+  @ContentChildren(WidgetComponentBase) children: QueryList<WidgetComponentBase<any>>;
 
   async createWidget(view: __esri.MapView, isHidden?: boolean): Promise<__esri.Widget> {
     type modules = [typeof import ('esri/widgets/Expand')];
@@ -69,7 +65,18 @@ export class ExpandComponent extends WidgetComponentBase {
     params.view = view;
     params.content = await child.createWidget(view, true);
     this.instance = new Expand(params);
+    this.createWatchedHandlers();
     child.isAttached = true;
     return this.instance;
+  }
+
+  private handleStateChange(isExpanded: boolean): void {
+    if (this.instance != null) {
+      if (isExpanded) {
+        this.instance.expand();
+      } else {
+        this.instance.collapse();
+      }
+    }
   }
 }
