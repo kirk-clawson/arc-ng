@@ -10,8 +10,9 @@ import {
 } from '@angular/core';
 import { createCtorParameterObject, isEmpty, loadEsriModules, trimEmptyFields } from '../../shared/utils';
 import { EsriEventEmitter } from '../../shared/esri-event-emitter';
-import { LayerComponentBase, WidgetComponentBase } from '../../shared/component-bases';
+import { widgetBuilder, WidgetComponentBase } from '../../shared/widget-component-base';
 import { map } from 'rxjs/operators';
+import { layerBuilder, LayerComponentBase } from '../../shared/layer-component-base';
 
 export class EsriHitTestEmitter<T = __esri.HitTestResult> extends EsriEventEmitter<__esri.HitTestResult> {
   init(source: __esri.MapView) {
@@ -195,14 +196,7 @@ export class MapComponent implements AfterContentInit {
   }
 
   private async setupLayers() {
-    await Promise.all(this.childLayers.map(async l => {
-      const layer = await l.createLayer();
-      if (l.getIndex() == null) {
-        this.map.add(layer);
-      } else {
-        this.map.add(layer, l.getIndex());
-      }
-    }));
+    await Promise.all(this.childLayers.map(layerBuilder(this.map)));
   }
 
   private async setupWidgets() {
@@ -213,10 +207,6 @@ export class MapComponent implements AfterContentInit {
   }
 
   private async createWidgets(widgetComponents: WidgetComponentBase[]) {
-    await Promise.all(widgetComponents.map(async w => {
-      const widget = await w.createWidget(this.mapView);
-      this.mapView.ui.add(widget, w.getPosition());
-      w.isAttached = true;
-    }));
+    await Promise.all(widgetComponents.map(widgetBuilder(this.mapView)));
   }
 }

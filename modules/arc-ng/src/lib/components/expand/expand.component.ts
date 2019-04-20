@@ -1,7 +1,7 @@
 import { Component, ContentChildren, forwardRef, Input, QueryList } from '@angular/core';
-import { IconClass, UIPosition, WidgetMode } from '../../shared/enums';
+import { IconClass, WidgetMode } from '../../shared/enums';
 import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
-import { WidgetComponentBase } from '../../shared/component-bases';
+import { WidgetComponentBase } from '../../shared/widget-component-base';
 
 @Component({
   selector: 'arcng-expand',
@@ -45,14 +45,6 @@ export class ExpandComponent extends WidgetComponentBase {
   set mode(value: WidgetMode) {
     this._mode = value;
   }
-  @Input()
-  set index(value: number) {
-    this.__index = value;
-  }
-  @Input()
-  set position(value: UIPosition) {
-    this.__position = value;
-  }
 
   private instance: import ('esri/widgets/Expand');
 
@@ -71,14 +63,13 @@ export class ExpandComponent extends WidgetComponentBase {
   async createWidget(view: __esri.MapView, isHidden?: boolean): Promise<__esri.Widget> {
     type modules = [typeof import ('esri/widgets/Expand')];
     const [ Expand ] = await loadEsriModules<modules>(['esri/widgets/Expand']);
-    const realChildren = this.children.filter(c => c !== this);
-    if (realChildren.length > 1) throw Error('An Expand widget can only display one child widget.');
-    const child = await realChildren[0].createWidget(view, true);
+    if (this.children.filter(c => c !== this).length > 1) throw Error('An Expand widget can only display one child widget.');
+    const child = this.children.filter(c => c !== this)[0];
     const params = createCtorParameterObject<__esri.ExpandProperties>(this);
     params.view = view;
-    params.content = child;
+    params.content = await child.createWidget(view, true);
     this.instance = new Expand(params);
-    realChildren[0].isAttached = true;
+    child.isAttached = true;
     return this.instance;
   }
 }

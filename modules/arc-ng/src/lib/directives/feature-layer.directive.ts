@@ -1,6 +1,6 @@
 import { Directive, forwardRef, Input } from '@angular/core';
-import { LayerComponentBase } from '../shared/component-bases';
 import { loadEsriModules } from '../shared/utils';
+import { LayerComponentBase } from '../shared/layer-component-base';
 
 @Directive({
   selector: 'arcng-feature-layer',

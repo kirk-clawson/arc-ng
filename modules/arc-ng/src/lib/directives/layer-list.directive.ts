@@ -1,6 +1,5 @@
-import { Directive, forwardRef, Input } from '@angular/core';
-import { WidgetComponentBase } from '../shared/component-bases';
-import { UIPosition } from '../shared/enums';
+import { Directive, forwardRef } from '@angular/core';
+import { WidgetComponentBase } from '../shared/widget-component-base';
 import { loadEsriModules } from '../shared/utils';
 
 @Directive({
@@ -8,15 +7,6 @@ import { loadEsriModules } from '../shared/utils';
   providers: [{ provide: WidgetComponentBase, useExisting: forwardRef(() => LayerListDirective)}]
 })
 export class LayerListDirective extends WidgetComponentBase {
-  @Input()
-  set index(value: number) {
-    this.__index = value;
-  }
-
-  @Input()
-  set position(value: UIPosition) {
-    this.__position = value;
-  }
 
   private instance: import ('esri/widgets/LayerList');
 

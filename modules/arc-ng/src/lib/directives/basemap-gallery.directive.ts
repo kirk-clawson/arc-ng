@@ -1,23 +1,12 @@
-import { Directive, forwardRef, Input } from '@angular/core';
-import { WidgetComponentBase } from '../shared/component-bases';
+import { Directive, forwardRef } from '@angular/core';
+import { WidgetComponentBase } from '../shared/widget-component-base';
 import { loadEsriModules } from '../shared/utils';
-import { UIPosition } from '../shared/enums';
 
 @Directive({
   selector: 'arcng-basemap-gallery',
   providers: [{ provide: WidgetComponentBase, useExisting: forwardRef(() => BasemapGalleryDirective)}]
 })
 export class BasemapGalleryDirective extends WidgetComponentBase {
-
-  @Input()
-  set index(value: number) {
-    this.__index = value;
-  }
-
-  @Input()
-  set position(value: UIPosition) {
-    this.__position = value;
-  }
 
   private instance: import ('esri/widgets/BasemapGallery');
 

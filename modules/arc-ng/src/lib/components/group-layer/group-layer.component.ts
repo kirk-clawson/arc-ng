@@ -1,6 +1,6 @@
 import { Component, ContentChildren, forwardRef, Input, QueryList } from '@angular/core';
-import { LayerComponentBase } from '../../shared/component-bases';
 import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
+import { layerBuilder, LayerComponentBase } from '../../shared/layer-component-base';
 
 @Component({
   selector: 'arcng-group-layer',
@@ -30,13 +30,6 @@ export class GroupLayerComponent extends LayerComponentBase {
   }
 
   async setupChildren(layers: LayerComponentBase[]) {
-    await Promise.all(layers.map(async l => {
-      const layer = await l.createLayer();
-      if (l.getIndex() == null) {
-        this.instance.add(layer);
-      } else {
-        this.instance.add(layer, l.getIndex());
-      }
-    }));
+    await Promise.all(layers.map(layerBuilder(this.instance)));
   }
 }
