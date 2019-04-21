@@ -4,13 +4,13 @@
     "directive-selector": [
       true,
       ["element", "attribute"],
-      "arcng",
+      ["arcng", ""],
       ["camelCase", "kebab-case"]
     ],
     "component-selector": [
       true,
       "element",
-      "arcng",
+      ["arcng", ""],
       "kebab-case"
     ],
     "variable-name": {

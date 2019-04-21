@@ -4,7 +4,7 @@ import { layerBuilder, LayerComponentBase } from '../../shared/layer-component-b
 import { LayerType } from '../../shared/enums';
 
 @Component({
-  selector: 'arcng-group-layer',
+  selector: 'group-layer',
   template: '<ng-content></ng-content>',
   providers: [{ provide: LayerComponentBase, useExisting: forwardRef(() => GroupLayerComponent)}]
 })

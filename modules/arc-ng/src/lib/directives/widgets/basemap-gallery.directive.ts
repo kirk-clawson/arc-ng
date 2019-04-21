@@ -5,7 +5,7 @@ import { IconClass } from '../../shared/enums';
 import { EsriWatchEmitter } from '../../shared/esri-watch-emitter';
 
 @Directive({
-  selector: 'arcng-basemap-gallery',
+  selector: 'basemap-gallery',
   providers: [{ provide: WidgetComponentBase, useExisting: forwardRef(() => BasemapGalleryDirective)}]
 })
 export class BasemapGalleryDirective extends WidgetComponentBase<__esri.BasemapGallery> {

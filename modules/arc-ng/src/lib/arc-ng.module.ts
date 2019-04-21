@@ -7,7 +7,8 @@ import { ExpandComponent } from './components/expand/expand.component';
 import { FeatureLayerComponent } from './components/feature-layer/feature-layer.component';
 import { LayerListDirective } from './directives/widgets/layer-list.directive';
 import { GroupLayerComponent } from './components/group-layer/group-layer.component';
-import { LabelClassDirective } from './directives/features/label-class.directive';
+import { LabelClassComponent } from './components/label-class/label-class.component';
+import { TextSymbolDirective } from './directives/features/text-symbol.directive';
 
 const loaderToken = new InjectionToken<ILoadScriptOptions>('ILoadScriptOptions');
 
@@ -29,7 +30,8 @@ const publicComponents = [
   FeatureLayerComponent,
   LayerListDirective,
   GroupLayerComponent,
-  LabelClassDirective
+  LabelClassComponent,
+  TextSymbolDirective
 ];
 
 @NgModule({

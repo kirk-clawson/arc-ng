@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 
 @Component({
-  selector: 'arcng-expand',
+  selector: 'expand-widget',
   template: '<ng-content></ng-content>',
   providers: [{ provide: WidgetComponentBase, useExisting: forwardRef(() => ExpandComponent)}]
 })

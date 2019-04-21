@@ -3,7 +3,7 @@ import { WidgetComponentBase } from '../../shared/widget-component-base';
 import { loadEsriModules } from '../../shared/utils';
 
 @Directive({
-  selector: 'arcng-layer-list',
+  selector: 'layer-list',
   providers: [{ provide: WidgetComponentBase, useExisting: forwardRef(() => LayerListDirective)}]
 })
 export class LayerListDirective extends WidgetComponentBase<__esri.LayerList> {

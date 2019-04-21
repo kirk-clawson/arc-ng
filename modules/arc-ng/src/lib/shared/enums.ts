@@ -67,3 +67,17 @@ export enum LayerType {
   FeatureLayer,
   MapImageLayer
 }
+
+export enum HorizontalAlignment {
+  Left = 'left',
+  Right = 'right',
+  Center = 'center',
+  Justify = 'justify'
+}
+
+export enum VerticalAlignment {
+  Baseline = 'baseline',
+  Top = 'top',
+  Middle = 'middle',
+  Bottom = 'bottom',
+}

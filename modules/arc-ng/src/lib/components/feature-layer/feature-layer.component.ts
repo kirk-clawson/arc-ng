@@ -2,11 +2,11 @@ import { Component, ContentChildren, forwardRef, Input, QueryList } from '@angul
 import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
 import { LayerComponentBase } from '../../shared/layer-component-base';
 import { LayerType } from '../../shared/enums';
-import { LabelClassDirective } from '../../directives/features/label-class.directive';
+import { LabelClassComponent } from '../label-class/label-class.component';
 import { loadAsyncChildren } from '../../shared/esri-component-base';
 
 @Component({
-  selector: 'arcng-feature-layer',
+  selector: 'feature-layer',
   template: '<ng-content></ng-content>',
   providers: [{ provide: LayerComponentBase, useExisting: forwardRef(() => FeatureLayerComponent)}]
 })
@@ -84,7 +84,7 @@ export class FeatureLayerComponent extends LayerComponentBase<__esri.FeatureLaye
   private _url: string;
   layerType: LayerType = LayerType.FeatureLayer;
 
-  @ContentChildren(LabelClassDirective) labelChildren: QueryList<LabelClassDirective>;
+  @ContentChildren(LabelClassComponent) labelChildren: QueryList<LabelClassComponent>;
 
   async createInstance(): Promise<__esri.FeatureLayer> {
     type modules = [typeof import ('esri/layers/FeatureLayer')];

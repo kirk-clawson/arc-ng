@@ -37,9 +37,9 @@ export abstract class EsriAsyncComponentBase<T extends __esri.Accessor> extends 
   abstract async createInstance(): Promise<T>;
 }
 
-export const loadSyncChildren = <C extends __esri.Accessor>(children: EsriSyncComponentBase<C>[]): C[] => {
+export const loadAutoCastChildren = <C extends __esri.Accessor>(children: EsriAutoCastComponentBase<C>[]): any[] => {
   return children.map(c => c.createInstance());
 };
-export abstract class EsriSyncComponentBase<T extends __esri.Accessor> extends EsriComponentBase<T> {
-  abstract createInstance(): T;
+export abstract class EsriAutoCastComponentBase<T extends __esri.Accessor> extends EsriComponentBase<T> {
+  abstract createInstance(): any;
 }
