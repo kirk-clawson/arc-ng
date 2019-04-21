@@ -1,6 +1,9 @@
-import { Component, forwardRef, Input } from '@angular/core';
+import { Component, ContentChildren, forwardRef, Input, QueryList } from '@angular/core';
 import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
 import { LayerComponentBase } from '../../shared/layer-component-base';
+import { LayerType } from '../../shared/enums';
+import { LabelClassDirective } from '../../directives/features/label-class.directive';
+import { loadAsyncChildren } from '../../shared/esri-component-base';
 
 @Component({
   selector: 'arcng-feature-layer',
@@ -79,11 +82,17 @@ export class FeatureLayerComponent extends LayerComponentBase<__esri.FeatureLaye
   // noinspection JSMismatchedCollectionQueryUpdate
   private _source: __esri.Graphic[];
   private _url: string;
+  layerType: LayerType = LayerType.FeatureLayer;
 
-  async createLayer(): Promise<__esri.FeatureLayer> {
+  @ContentChildren(LabelClassDirective) labelChildren: QueryList<LabelClassDirective>;
+
+  async createInstance(): Promise<__esri.FeatureLayer> {
     type modules = [typeof import ('esri/layers/FeatureLayer')];
     const [ FeatureLayer ] = await loadEsriModules<modules>(['esri/layers/FeatureLayer']);
-    const params = createCtorParameterObject(this);
+    const params = createCtorParameterObject<__esri.FeatureLayerProperties>(this);
+    if (this.labelChildren.length > 0) {
+      params.labelingInfo = await loadAsyncChildren(this.labelChildren.toArray());
+    }
     this.instance = new FeatureLayer(params);
     return this.instance;
   }

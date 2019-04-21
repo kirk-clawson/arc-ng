@@ -7,6 +7,7 @@ import { ExpandComponent } from './components/expand/expand.component';
 import { FeatureLayerComponent } from './components/feature-layer/feature-layer.component';
 import { LayerListDirective } from './directives/widgets/layer-list.directive';
 import { GroupLayerComponent } from './components/group-layer/group-layer.component';
+import { LabelClassDirective } from './directives/features/label-class.directive';
 
 const loaderToken = new InjectionToken<ILoadScriptOptions>('ILoadScriptOptions');
 
@@ -21,10 +22,20 @@ export function init(config: ILoadScriptOptions) {
   };
 }
 
+const publicComponents = [
+  MapComponent,
+  BasemapGalleryDirective,
+  ExpandComponent,
+  FeatureLayerComponent,
+  LayerListDirective,
+  GroupLayerComponent,
+  LabelClassDirective
+];
+
 @NgModule({
-  declarations: [MapComponent, BasemapGalleryDirective, ExpandComponent, FeatureLayerComponent, LayerListDirective, GroupLayerComponent],
+  declarations: publicComponents,
   imports: [],
-  exports: [MapComponent, BasemapGalleryDirective, ExpandComponent, FeatureLayerComponent, LayerListDirective, GroupLayerComponent]
+  exports: publicComponents
 })
 export class ArcNgModule {
 

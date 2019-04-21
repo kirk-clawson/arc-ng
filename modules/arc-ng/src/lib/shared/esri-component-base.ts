@@ -12,6 +12,14 @@ export class EsriComponentBase<T extends __esri.Accessor> {
     }
   }
 
+  protected setAutoCastField<K extends keyof T>(fieldName: K, value: any): void {
+    const localField = '_' + fieldName;
+    if (this[localField] !== value) {
+      this[localField] = value;
+      if (this.instance != null) this.instance[fieldName] = value;
+    }
+  }
+
   protected createWatchedHandlers(): void {
     Object.values(this).forEach(v => {
       if (v instanceof EsriWatchEmitter) {
@@ -20,4 +28,18 @@ export class EsriComponentBase<T extends __esri.Accessor> {
     });
   }
 
+}
+
+export const loadAsyncChildren = async <C extends __esri.Accessor>(children: EsriAsyncComponentBase<C>[]): Promise<C[]> => {
+  return await Promise.all(children.map(async c => await c.createInstance()));
+};
+export abstract class EsriAsyncComponentBase<T extends __esri.Accessor> extends EsriComponentBase<T> {
+  abstract async createInstance(): Promise<T>;
+}
+
+export const loadSyncChildren = <C extends __esri.Accessor>(children: EsriSyncComponentBase<C>[]): C[] => {
+  return children.map(c => c.createInstance());
+};
+export abstract class EsriSyncComponentBase<T extends __esri.Accessor> extends EsriComponentBase<T> {
+  abstract createInstance(): T;
 }

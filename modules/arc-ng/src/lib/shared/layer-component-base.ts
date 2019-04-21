@@ -1,10 +1,10 @@
 /* tslint:disable:variable-name */
 import { Input } from '@angular/core';
-import { EsriComponentBase } from './esri-component-base';
-import { ListMode } from './enums';
+import { EsriAsyncComponentBase } from './esri-component-base';
+import { LayerType, ListMode } from './enums';
 
 export const layerBuilder = (parent: __esri.LayersMixin) => async (l: LayerComponentBase<__esri.Layer>) => {
-  const layer = await l.createLayer();
+  const layer = await l.createInstance();
   if (l.listIndex == null) {
     parent.add(layer);
   } else {
@@ -12,7 +12,7 @@ export const layerBuilder = (parent: __esri.LayersMixin) => async (l: LayerCompo
   }
 };
 
-export abstract class LayerComponentBase<T extends __esri.Layer> extends EsriComponentBase<T> {
+export abstract class LayerComponentBase<T extends __esri.Layer> extends EsriAsyncComponentBase<T> {
 
   @Input()
   set LayerUniqueId(value: string) {
@@ -41,5 +41,5 @@ export abstract class LayerComponentBase<T extends __esri.Layer> extends EsriCom
 
   private __listIndex?: number;
 
-  async abstract createLayer(): Promise<T>;
+  abstract layerType: LayerType;
 }

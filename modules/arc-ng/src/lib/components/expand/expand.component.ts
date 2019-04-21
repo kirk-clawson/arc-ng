@@ -1,15 +1,17 @@
-import { Component, ContentChildren, forwardRef, Input, Output, QueryList } from '@angular/core';
+import { AfterContentInit, Component, ContentChildren, forwardRef, Input, Output, QueryList } from '@angular/core';
 import { IconClass, WidgetMode } from '../../shared/enums';
 import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
 import { WidgetComponentBase } from '../../shared/widget-component-base';
 import { EsriWatchEmitter } from '../../shared/esri-watch-emitter';
+import { Observable } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 
 @Component({
   selector: 'arcng-expand',
   template: '<ng-content></ng-content>',
   providers: [{ provide: WidgetComponentBase, useExisting: forwardRef(() => ExpandComponent)}]
 })
-export class ExpandComponent extends WidgetComponentBase<__esri.Expand> {
+export class ExpandComponent extends WidgetComponentBase<__esri.Expand> implements AfterContentInit {
   @Input()
   set autoCollapse(value: boolean) {
     this.setField('autoCollapse', value);
@@ -54,19 +56,29 @@ export class ExpandComponent extends WidgetComponentBase<__esri.Expand> {
 
   private _expanded: boolean;
 
-  @ContentChildren(WidgetComponentBase) children: QueryList<WidgetComponentBase<any>>;
+  @ContentChildren(WidgetComponentBase) allChildren: QueryList<WidgetComponentBase<__esri.Widget>>;
+  get child(): WidgetComponentBase<__esri.Widget> {
+    return this.allChildren.filter(c => c !== this)[0];
+  }
+  get childChanges(): Observable<WidgetComponentBase<__esri.Widget>> {
+    return this.allChildren.changes.pipe(filter(c => c !== this), map(c => c[0]));
+  }
+
+  ngAfterContentInit(): void {
+    if (this.allChildren.filter(c => c !== this).length > 1) throw Error('An Expand widget can only contain one child widget.');
+  }
 
   async createWidget(view: __esri.MapView, isHidden?: boolean): Promise<__esri.Expand> {
     type modules = [typeof import ('esri/widgets/Expand')];
     const [ Expand ] = await loadEsriModules<modules>(['esri/widgets/Expand']);
-    if (this.children.filter(c => c !== this).length > 1) throw Error('An Expand widget can only display one child widget.');
-    const child = this.children.filter(c => c !== this)[0];
     const params = createCtorParameterObject<__esri.ExpandProperties>(this);
     params.view = view;
-    params.content = await child.createWidget(view, true);
+    if (this.child != null) {
+      params.content = await this.child.createWidget(view, true);
+      this.child.isAttached = true;
+    }
     this.instance = new Expand(params);
     this.createWatchedHandlers();
-    child.isAttached = true;
     return this.instance;
   }
 

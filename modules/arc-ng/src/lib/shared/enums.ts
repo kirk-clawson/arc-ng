@@ -27,3 +27,43 @@ export enum ListMode {
   Hide = 'hide',
   HideChildren = 'hide-children'
 }
+
+export enum PointLabelPlacement {
+  AboveCenter = 'above-center',
+  AboveLeft = 'above-left',
+  AboveRight = 'above-right',
+  BelowCenter = 'below-center',
+  BelowLeft = 'below-left',
+  BelowRight = 'below-right',
+  CenterCenter = 'center-center',
+  CenterLeft = 'center-left',
+  CenterRight = 'center-right',
+}
+
+export enum PolylineLabelPlacement {
+  AboveAfter = 'above-after',
+  AboveAlong = 'above-along',
+  AboveBefore = 'above-before',
+  AboveStart = 'above-start',
+  AboveEnd = 'above-end',
+  BelowAfter = 'below-after',
+  BelowAlong = 'below-along',
+  BelowBefore = 'below-before',
+  BelowStart = 'below-start',
+  BelowEnd = 'below-end',
+  CenterAfter = 'center-after',
+  CenterAlong = 'center-along',
+  CenterBefore = 'center-before',
+  CenterStart = 'center-start',
+  CenterEnd = 'center-end',
+}
+
+export enum PolygonPointPlacement {
+  AlwaysHorizontal = 'always-horizontal'
+}
+
+export enum LayerType {
+  GroupLayer,
+  FeatureLayer,
+  MapImageLayer
+}
