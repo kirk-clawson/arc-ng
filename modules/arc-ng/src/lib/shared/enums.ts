@@ -21,3 +21,9 @@ export enum WidgetMode {
   Floating = 'floating',
   Drawer = 'drawer'
 }
+
+export enum ListMode {
+  Show = 'show',
+  Hide = 'hide',
+  HideChildren = 'hide-children'
+}

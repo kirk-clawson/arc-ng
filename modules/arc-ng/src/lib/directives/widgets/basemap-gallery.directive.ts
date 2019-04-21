@@ -1,8 +1,8 @@
 import { Directive, forwardRef, Input, Output } from '@angular/core';
-import { WidgetComponentBase } from '../shared/widget-component-base';
-import { createCtorParameterObject, loadEsriModules } from '../shared/utils';
-import { IconClass } from '../shared/enums';
-import { EsriWatchEmitter } from '../shared/esri-watch-emitter';
+import { WidgetComponentBase } from '../../shared/widget-component-base';
+import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
+import { IconClass } from '../../shared/enums';
+import { EsriWatchEmitter } from '../../shared/esri-watch-emitter';
 
 @Directive({
   selector: 'arcng-basemap-gallery',

@@ -2,10 +2,10 @@ import { APP_INITIALIZER, InjectionToken, ModuleWithProviders, NgModule, Optiona
 import * as esriLoader from 'esri-loader';
 import { ILoadScriptOptions } from 'esri-loader';
 import { MapComponent } from './components/map/map.component';
-import { BasemapGalleryDirective } from './directives/basemap-gallery.directive';
+import { BasemapGalleryDirective } from './directives/widgets/basemap-gallery.directive';
 import { ExpandComponent } from './components/expand/expand.component';
-import { FeatureLayerDirective } from './directives/feature-layer.directive';
-import { LayerListDirective } from './directives/layer-list.directive';
+import { FeatureLayerComponent } from './components/feature-layer/feature-layer.component';
+import { LayerListDirective } from './directives/widgets/layer-list.directive';
 import { GroupLayerComponent } from './components/group-layer/group-layer.component';
 
 const loaderToken = new InjectionToken<ILoadScriptOptions>('ILoadScriptOptions');
@@ -22,9 +22,9 @@ export function init(config: ILoadScriptOptions) {
 }
 
 @NgModule({
-  declarations: [MapComponent, BasemapGalleryDirective, ExpandComponent, FeatureLayerDirective, LayerListDirective, GroupLayerComponent],
+  declarations: [MapComponent, BasemapGalleryDirective, ExpandComponent, FeatureLayerComponent, LayerListDirective, GroupLayerComponent],
   imports: [],
-  exports: [MapComponent, BasemapGalleryDirective, ExpandComponent, FeatureLayerDirective, LayerListDirective, GroupLayerComponent]
+  exports: [MapComponent, BasemapGalleryDirective, ExpandComponent, FeatureLayerComponent, LayerListDirective, GroupLayerComponent]
 })
 export class ArcNgModule {
 

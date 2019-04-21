@@ -1,6 +1,6 @@
 import { Directive, forwardRef } from '@angular/core';
-import { WidgetComponentBase } from '../shared/widget-component-base';
-import { loadEsriModules } from '../shared/utils';
+import { WidgetComponentBase } from '../../shared/widget-component-base';
+import { loadEsriModules } from '../../shared/utils';
 
 @Directive({
   selector: 'arcng-layer-list',
