@@ -1,7 +1,7 @@
 import { Component, ContentChildren, forwardRef, Input, QueryList } from '@angular/core';
-import { createCtorParameterObject, loadEsriModules } from '../../../shared/utils';
-import { layerBuilder, LayerComponentBase } from '../../../shared/layer-component-base';
-import { LayerType } from '../../../shared/enums';
+import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
+import { layerBuilder, LayerComponentBase } from '../../shared/layer-component-base';
+import { LayerType } from '../../shared/enums';
 
 @Component({
   selector: 'group-layer',

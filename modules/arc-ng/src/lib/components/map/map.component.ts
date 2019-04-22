@@ -13,6 +13,7 @@ import { EsriEventEmitter } from '../../shared/esri-event-emitter';
 import { widgetBuilder, WidgetComponentBase } from '../../shared/widget-component-base';
 import { map } from 'rxjs/operators';
 import { layerBuilder, LayerComponentBase } from '../../shared/layer-component-base';
+import { ActionDispatcherService } from '../../services/action-dispatcher.service';
 
 export class EsriHitTestEmitter<T = __esri.HitTestResult> extends EsriEventEmitter<__esri.HitTestResult> {
   init(source: __esri.MapView) {
@@ -35,6 +36,7 @@ export type baseMapNames = 'topo' | 'streets' | 'satellite' | 'hybrid' | 'dark-g
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [ActionDispatcherService]
 })
 export class MapComponent implements AfterContentInit {
   @Input()

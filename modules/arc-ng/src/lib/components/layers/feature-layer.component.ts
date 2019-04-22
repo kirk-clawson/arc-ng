@@ -1,13 +1,13 @@
 import { AfterContentInit, Component, ContentChildren, forwardRef, Input, OnDestroy, OnInit, QueryList } from '@angular/core';
-import { createCtorParameterObject, groupBy, loadEsriModules } from '../../../shared/utils';
-import { LayerComponentBase } from '../../../shared/layer-component-base';
-import { LayerType } from '../../../shared/enums';
-import { LabelClassComponent } from '../support/label-class/label-class.component';
-import { loadAsyncChildren } from '../../../shared/esri-component-base';
+import { createCtorParameterObject, groupBy, loadEsriModules } from '../../shared/utils';
+import { LayerComponentBase } from '../../shared/layer-component-base';
+import { LayerType } from '../../shared/enums';
+import { LabelClassComponent } from './support/label-class.component';
+import { loadAsyncChildren } from '../../shared/esri-component-base';
 import { Subject } from 'rxjs';
-import { ActionDispatcherService } from '../../../services/action-dispatcher.service';
+import { ActionDispatcherService } from '../../services/action-dispatcher.service';
 import { filter, takeUntil } from 'rxjs/operators';
-import { ActionDirective } from '../../../directives/features/action.directive';
+import { ActionDirective } from '../support/action.directive';
 
 @Component({
   selector: 'feature-layer',

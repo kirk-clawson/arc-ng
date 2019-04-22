@@ -1,9 +1,9 @@
 import { AfterContentInit, Component, ContentChild, Input } from '@angular/core';
-import { EsriAsyncComponentBase } from '../../../../shared/esri-component-base';
-import { LayerComponentBase } from '../../../../shared/layer-component-base';
-import { LayerType, PointLabelPlacement, PolygonPointPlacement, PolylineLabelPlacement } from '../../../../shared/enums';
-import { createCtorParameterObject, loadEsriModules } from '../../../../shared/utils';
-import { TextSymbolDirective } from '../../../../directives/features/text-symbol.directive';
+import { EsriAsyncComponentBase } from '../../../shared/esri-component-base';
+import { LayerComponentBase } from '../../../shared/layer-component-base';
+import { LayerType, PointLabelPlacement, PolygonPointPlacement, PolylineLabelPlacement } from '../../../shared/enums';
+import { createCtorParameterObject, loadEsriModules } from '../../../shared/utils';
+import { TextSymbolDirective } from '../../symbols/text-symbol.directive';
 
 const DEFAULT_SYMBOL = {
   type: 'text',  // auto casts as new TextSymbol()
