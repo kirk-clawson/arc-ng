@@ -9,10 +9,10 @@
     <group-layer title="Tornadoes">
       <feature-layer url="https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/Tornado_Warnings/FeatureServer/0">
         <label-class expression="$feature.STATUS" where="STATUS = 'NEW'">
-          <text-symbol color="red" haloColor="black" haloSize="1px" [fontSize]="12"></text-symbol>
+          <text-symbol color="red" haloColor="white" haloSize="1px" [fontSize]="12"></text-symbol>
         </label-class>
         <label-class expression="$feature.STATUS" where="STATUS <> 'NEW'">
-          <text-symbol color="green" haloColor="black" haloSize="1px" [fontSize]="12"></text-symbol>
+          <text-symbol [color]="[11, 127, 52, 1]" [haloColor]="[255, 255, 255, 0.75]" haloSize="1px" [fontSize]="12"></text-symbol>
         </label-class>
       </feature-layer>
     </group-layer>
