@@ -1,16 +1,20 @@
-import { Component, ContentChildren, forwardRef, Input, QueryList } from '@angular/core';
-import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
-import { LayerComponentBase } from '../../shared/layer-component-base';
-import { LayerType } from '../../shared/enums';
-import { LabelClassComponent } from '../label-class/label-class.component';
-import { loadAsyncChildren } from '../../shared/esri-component-base';
+import { AfterContentInit, Component, ContentChildren, forwardRef, Input, OnDestroy, OnInit, QueryList } from '@angular/core';
+import { createCtorParameterObject, groupBy, loadEsriModules } from '../../../shared/utils';
+import { LayerComponentBase } from '../../../shared/layer-component-base';
+import { LayerType } from '../../../shared/enums';
+import { LabelClassComponent } from '../support/label-class/label-class.component';
+import { loadAsyncChildren } from '../../../shared/esri-component-base';
+import { Subject } from 'rxjs';
+import { ActionDispatcherService } from '../../../services/action-dispatcher.service';
+import { filter, takeUntil } from 'rxjs/operators';
+import { ActionDirective } from '../../../directives/features/action.directive';
 
 @Component({
   selector: 'feature-layer',
   template: '<ng-content></ng-content>',
   providers: [{ provide: LayerComponentBase, useExisting: forwardRef(() => FeatureLayerComponent)}]
 })
-export class FeatureLayerComponent extends LayerComponentBase<__esri.FeatureLayer> {
+export class FeatureLayerComponent extends LayerComponentBase<__esri.FeatureLayer> implements OnInit, AfterContentInit, OnDestroy {
 
   @Input()
   set copyright(value: string) {
@@ -82,18 +86,62 @@ export class FeatureLayerComponent extends LayerComponentBase<__esri.FeatureLaye
   // noinspection JSMismatchedCollectionQueryUpdate
   private _source: __esri.Graphic[];
   private _url: string;
+  private isValid = true;
+  private destroyed$ = new Subject();
   layerType: LayerType = LayerType.FeatureLayer;
 
   @ContentChildren(LabelClassComponent) labelChildren: QueryList<LabelClassComponent>;
+  @ContentChildren(ActionDirective) actions: QueryList<ActionDirective>;
+
+  constructor(private dispatcher: ActionDispatcherService) {
+    super();
+  }
+
+  ngOnInit(): void {
+    this.dispatcher.updateListItem$.pipe(
+      filter(li => li.layer === this.instance),
+      takeUntil(this.destroyed$)
+    ).subscribe(li => this.createListItem(li));
+  }
+
+  ngOnDestroy(): void {
+    this.destroyed$.next();
+  }
+
+  ngAfterContentInit(): void {
+    let sources = 0;
+    if (this._url != null) ++sources;
+    if (this._portalId != null) ++sources;
+    if (this._source != null) ++sources;
+    if (sources === 0 || sources > 1) {
+      this.isValid = false;
+      throw new Error('A feature layer must have one and only one data source (url, portalId, or source)');
+    }
+  }
 
   async createInstance(): Promise<__esri.FeatureLayer> {
     type modules = [typeof import ('esri/layers/FeatureLayer')];
+    if (!this.isValid) return Promise.reject('Invalid Feature Layer');
     const [ FeatureLayer ] = await loadEsriModules<modules>(['esri/layers/FeatureLayer']);
     const params = createCtorParameterObject<__esri.FeatureLayerProperties>(this);
     if (this.labelChildren.length > 0) {
       params.labelingInfo = await loadAsyncChildren(this.labelChildren.toArray());
     }
     this.instance = new FeatureLayer(params);
+    this.instanceCreated.emit(this.instance);
     return this.instance;
+  }
+
+  private createListItem(item: __esri.ListItem): void {
+    const groups = groupBy(this.actions.toArray(), 'sectionNumber');
+    const groupKeys: number[] = Array.from(groups.keys());
+    groupKeys.sort();
+    const result = [];
+    for (const key of groupKeys) {
+      const currentActions = groups.get(key);
+      currentActions.sort((a, b) => a.sortOrder - b.sortOrder);
+      result.push(currentActions.map(a => a.createInstance()));
+    }
+    item.actionsSections = result as any;
   }
 }

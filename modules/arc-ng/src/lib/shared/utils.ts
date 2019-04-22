@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length */
 import { ILoadScriptOptions, loadModules } from 'esri-loader';
 
 export function loadEsriModules<T extends any[]>(modules: string[], loadScriptOptions?: ILoadScriptOptions): Promise<T> {
@@ -27,4 +28,42 @@ export function isEmpty(item: string | {}): boolean {
   } else {
     return item == null || Object.keys(item).length === 0;
   }
+}
+
+// noinspection JSCommentMatchesSignature
+/**
+ * Groups an array by the contents of a field identified by its name
+ * @param items: The array to group
+ * @param fieldName: The name of the field to extract grouping info from
+ * @param valueSelector: Optional callback to transform each item before the final grouping
+ */
+export function groupBy<T extends { [key: string]: any }, K extends keyof T, R>(items: T[] | ReadonlyArray<T>, fieldName: K): Map<T[K], T[]>;
+export function groupBy<T extends { [key: string]: any }, K extends keyof T, R>(items: T[] | ReadonlyArray<T>, fieldName: K, valueSelector: (item: T) => R): Map<T[K], R[]>;
+export function groupBy<T extends { [key: string]: any }, K extends keyof T, R>(items: T[] | ReadonlyArray<T>, fieldName: K, valueSelector?: (item: T) => R): Map<T[K], (T | R)[]> {
+  return groupByExtended(items, (i) => i[fieldName], valueSelector);
+}
+
+// noinspection JSCommentMatchesSignature
+/**
+ * Groups an array by the result of a keySelector function
+ * @param items: The array to group
+ * @param keySelector: A callback function that is used to generate the keys for the dictionary
+ * @param valueSelector: Optional callback to transform each item before the final grouping
+ */
+export function groupByExtended<T, K, R>(items: T[] | ReadonlyArray<T>, keySelector: (item: T) => K): Map<K, T[]>;
+export function groupByExtended<T, K, R>(items: T[] | ReadonlyArray<T>, keySelector: (item: T) => K, valueSelector: (item: T) => R): Map<K, R[]>;
+export function groupByExtended<T, K, R>(items: T[] | ReadonlyArray<T>, keySelector: (item: T) => K, valueSelector?: (item: T) => R): Map<K, (T | R)[]> {
+  const result = new Map<K, (T | R)[]>();
+  if (items == null || items.length === 0) return result;
+  const tx: ((item: T) => T | R) = valueSelector != null ? valueSelector : (i) => i;
+  for (const i of items) {
+    const currentKey = keySelector(i);
+    const currentValue = tx(i);
+    if (result.has(currentKey)) {
+      result.get(currentKey).push(currentValue);
+    } else {
+      result.set(currentKey, [currentValue]);
+    }
+  }
+  return result;
 }

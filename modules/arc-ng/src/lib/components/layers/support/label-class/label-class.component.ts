@@ -1,9 +1,9 @@
 import { AfterContentInit, Component, ContentChild, Input } from '@angular/core';
-import { EsriAsyncComponentBase } from '../../shared/esri-component-base';
-import { LayerComponentBase } from '../../shared/layer-component-base';
-import { LayerType, PointLabelPlacement, PolygonPointPlacement, PolylineLabelPlacement } from '../../shared/enums';
-import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
-import { TextSymbolDirective } from '../../directives/features/text-symbol.directive';
+import { EsriAsyncComponentBase } from '../../../../shared/esri-component-base';
+import { LayerComponentBase } from '../../../../shared/layer-component-base';
+import { LayerType, PointLabelPlacement, PolygonPointPlacement, PolylineLabelPlacement } from '../../../../shared/enums';
+import { createCtorParameterObject, loadEsriModules } from '../../../../shared/utils';
+import { TextSymbolDirective } from '../../../../directives/features/text-symbol.directive';
 
 const DEFAULT_SYMBOL = {
   type: 'text',  // auto casts as new TextSymbol()
@@ -85,7 +85,6 @@ export class LabelClassComponent extends EsriAsyncComponentBase<__esri.LabelClas
   }
 
   async createInstance(): Promise<__esri.LabelClass> {
-    console.log('CI');
     type modules = [typeof import ('esri/layers/support/LabelClass')];
     const [ LabelClass ] = await loadEsriModules<modules>(['esri/layers/support/LabelClass']);
     const params = createCtorParameterObject<__esri.LabelClassProperties>(this);

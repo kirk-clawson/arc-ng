@@ -1,7 +1,7 @@
 /* tslint:disable:variable-name */
 import { Directive, Input } from '@angular/core';
 import { EsriAutoCastComponentBase } from '../../shared/esri-component-base';
-import { AutocastColor } from '../../shared/type-utils';
+import { AutoCastColor, autoCastToColor } from '../../shared/type-utils';
 import { HorizontalAlignment, VerticalAlignment } from '../../shared/enums';
 import { createCtorParameterObject, trimEmptyFields } from '../../shared/utils';
 
@@ -14,11 +14,11 @@ export class TextSymbolDirective extends EsriAutoCastComponentBase<__esri.TextSy
     this.setField('angle', value);
   }
   @Input()
-  set backgroundColor(value: AutocastColor) {
+  set backgroundColor(value: AutoCastColor) {
     this.setAutoCastField('backgroundColor', value);
   }
   @Input()
-  set borderLineColor(value: AutocastColor) {
+  set borderLineColor(value: AutoCastColor) {
     this.setAutoCastField('borderLineColor', value);
   }
   @Input()
@@ -26,11 +26,11 @@ export class TextSymbolDirective extends EsriAutoCastComponentBase<__esri.TextSy
     this.setField('borderLineSize', value);
   }
   @Input()
-  set color(value: AutocastColor) {
-    this.setAutoCastField('color', value);
+  set color(value: AutoCastColor) {
+    if (autoCastToColor(value)) this.setField('color', value);
   }
   @Input()
-  set haloColor(value: AutocastColor) {
+  set haloColor(value: AutoCastColor) {
     this.setAutoCastField('haloColor', value);
   }
   @Input()

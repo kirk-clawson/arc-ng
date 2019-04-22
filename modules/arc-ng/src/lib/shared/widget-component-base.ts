@@ -1,7 +1,7 @@
 /* tslint:disable:variable-name */
 import { UIPosition } from './enums';
 import { Input } from '@angular/core';
-import { EsriComponentBase } from './esri-component-base';
+import { EsriAccessorBase } from './esri-component-base';
 
 export const widgetBuilder = (view: __esri.MapView) => async (w: WidgetComponentBase<__esri.Widget>) => {
   const widget = await w.createWidget(view);
@@ -9,7 +9,7 @@ export const widgetBuilder = (view: __esri.MapView) => async (w: WidgetComponent
   w.isAttached = true;
 };
 
-export abstract class WidgetComponentBase<T extends __esri.Widget> extends EsriComponentBase<T> {
+export abstract class WidgetComponentBase<T extends __esri.Widget> extends EsriAccessorBase<T> {
   @Input()
   set widgetId(value: string) {
     this.setField('id', value);

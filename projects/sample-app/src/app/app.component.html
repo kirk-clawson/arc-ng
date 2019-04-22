@@ -14,6 +14,7 @@
         <label-class expression="$feature.STATUS" where="STATUS <> 'NEW'">
           <text-symbol [color]="[11, 127, 52, 1]" [haloColor]="[255, 255, 255, 0.75]" haloSize="1px" [fontSize]="12"></text-symbol>
         </label-class>
+        <layer-action id="tornado-click" (click)="onActionClick()" [className]="icons.BlankMapPin"></layer-action>
       </feature-layer>
     </group-layer>
     <feature-layer url="https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/USA_Counties/FeatureServer/0" [visible]="false"></feature-layer>

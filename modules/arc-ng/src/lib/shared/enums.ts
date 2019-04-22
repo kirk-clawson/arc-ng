@@ -12,6 +12,7 @@ export enum UIPosition {
 
 export enum IconClass {
   Basemap = 'esri-icon-basemap',
+  BlankMapPin = 'esri-icon-blank-map-pin',
   Close = 'esri-icon-close',
   DragHorizontal = 'esri-cons-drag-horizontal'
 }

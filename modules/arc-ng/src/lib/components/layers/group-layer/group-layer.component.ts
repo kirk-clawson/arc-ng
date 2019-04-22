@@ -1,7 +1,7 @@
 import { Component, ContentChildren, forwardRef, Input, QueryList } from '@angular/core';
-import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
-import { layerBuilder, LayerComponentBase } from '../../shared/layer-component-base';
-import { LayerType } from '../../shared/enums';
+import { createCtorParameterObject, loadEsriModules } from '../../../shared/utils';
+import { layerBuilder, LayerComponentBase } from '../../../shared/layer-component-base';
+import { LayerType } from '../../../shared/enums';
 
 @Component({
   selector: 'group-layer',
@@ -24,6 +24,7 @@ export class GroupLayerComponent extends LayerComponentBase<__esri.GroupLayer> {
     const realChildren = this.children.filter(c => c !== this);
     const params = createCtorParameterObject<__esri.GroupLayerProperties>(this);
     this.instance = new GroupLayer(params);
+    this.instanceCreated.emit(this.instance);
     await this.setupChildren(realChildren);
     return this.instance;
   }

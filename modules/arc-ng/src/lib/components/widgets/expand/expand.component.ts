@@ -1,8 +1,8 @@
 import { AfterContentInit, Component, ContentChildren, forwardRef, Input, Output, QueryList } from '@angular/core';
-import { IconClass, WidgetMode } from '../../shared/enums';
-import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
-import { WidgetComponentBase } from '../../shared/widget-component-base';
-import { EsriWatchEmitter } from '../../shared/esri-watch-emitter';
+import { IconClass, WidgetMode } from '../../../shared/enums';
+import { createCtorParameterObject, loadEsriModules } from '../../../shared/utils';
+import { WidgetComponentBase } from '../../../shared/widget-component-base';
+import { EsriWatchEmitter } from '../../../shared/esri-watch-emitter';
 import { Observable } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 

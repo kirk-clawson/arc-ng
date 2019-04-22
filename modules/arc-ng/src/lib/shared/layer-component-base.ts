@@ -1,5 +1,5 @@
 /* tslint:disable:variable-name */
-import { Input } from '@angular/core';
+import { EventEmitter, Input, Output } from '@angular/core';
 import { EsriAsyncComponentBase } from './esri-component-base';
 import { LayerType, ListMode } from './enums';
 
@@ -38,6 +38,8 @@ export abstract class LayerComponentBase<T extends __esri.Layer> extends EsriAsy
   set listIndex(value: number) {
     this.__listIndex = value;
   }
+
+  @Output() instanceCreated = new EventEmitter<__esri.Layer>();
 
   private __listIndex?: number;
 

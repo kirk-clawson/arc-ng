@@ -3,12 +3,14 @@ import * as esriLoader from 'esri-loader';
 import { ILoadScriptOptions } from 'esri-loader';
 import { MapComponent } from './components/map/map.component';
 import { BasemapGalleryDirective } from './directives/widgets/basemap-gallery.directive';
-import { ExpandComponent } from './components/expand/expand.component';
-import { FeatureLayerComponent } from './components/feature-layer/feature-layer.component';
+import { ExpandComponent } from './components/widgets/expand/expand.component';
+import { FeatureLayerComponent } from './components/layers/feature-layer/feature-layer.component';
 import { LayerListDirective } from './directives/widgets/layer-list.directive';
-import { GroupLayerComponent } from './components/group-layer/group-layer.component';
-import { LabelClassComponent } from './components/label-class/label-class.component';
+import { GroupLayerComponent } from './components/layers/group-layer/group-layer.component';
+import { LabelClassComponent } from './components/layers/support/label-class/label-class.component';
 import { TextSymbolDirective } from './directives/features/text-symbol.directive';
+import { ActionDispatcherService } from './services/action-dispatcher.service';
+import { ActionDirective } from './directives/features/action.directive';
 
 const loaderToken = new InjectionToken<ILoadScriptOptions>('ILoadScriptOptions');
 
@@ -31,7 +33,8 @@ const publicComponents = [
   LayerListDirective,
   GroupLayerComponent,
   LabelClassComponent,
-  TextSymbolDirective
+  TextSymbolDirective,
+  ActionDirective
 ];
 
 @NgModule({
@@ -52,7 +55,8 @@ export class ArcNgModule {
       ngModule: ArcNgModule,
       providers: [
         { provide: loaderToken, useValue: options },
-        { provide: APP_INITIALIZER, useFactory: init, multi: true, deps: [loaderToken] }
+        { provide: APP_INITIALIZER, useFactory: init, multi: true, deps: [loaderToken] },
+        ActionDispatcherService
       ]
     };
   }
