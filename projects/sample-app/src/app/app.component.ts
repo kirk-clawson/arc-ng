@@ -15,7 +15,7 @@ export class AppComponent {
     console.log('Map is Ready');
   }
 
-  onActionClick() {
-    console.log('Action Clicked');
+  onActionClick(actionNum: number) {
+    console.log('Action Clicked', actionNum);
   }
 }

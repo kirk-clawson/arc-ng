@@ -2,27 +2,23 @@ import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angu
 import { filter, takeUntil } from 'rxjs/operators';
 import { ActionDispatcherService } from '../../services/action-dispatcher.service';
 import { Subject } from 'rxjs';
-import { trimEmptyFields } from '../../shared/utils';
+import { getUuid, trimEmptyFields } from '../../shared/utils';
 import { IconClass } from '../../shared/enums';
 
 @Directive({
-  selector: 'layer-action'
+  selector: 'action'
 })
 export class ActionDirective implements OnInit, OnDestroy {
-  @Input()
-  set iconClassName(value: IconClass) {
-    this.className = `esri-${value}`;
-  }
   @Input() active: boolean;
-  @Input() className: string;
+  @Input() className: IconClass;
   @Input() disabled: boolean;
-  @Input() id: string;
+  @Input() id: string = getUuid();
   @Input() image: string;
   @Input() title: string;
-  @Input() type: 'button' | 'toggle';
+  @Input() type: 'button' | 'toggle' = 'button';
   @Input() visible: boolean;
-  sectionNumber = 0;
-  sortOrder = 0;
+  @Input() sectionNumber = 0;
+  @Input() sortOrder = 0;
 
   @Output() click = new EventEmitter<void>();
   private destroyed$ = new Subject();
