@@ -1,4 +1,4 @@
-import { AfterContentInit, Component, ContentChildren, forwardRef, Input, OnDestroy, OnInit, QueryList } from '@angular/core';
+import { AfterContentInit, Component, ContentChildren, forwardRef, Input, OnDestroy, OnInit, Output, QueryList } from '@angular/core';
 import { createCtorParameterObject, groupBy, loadEsriModules } from '../../shared/utils';
 import { LayerComponentBase } from '../../shared/layer-component-base';
 import { LayerType } from '../../shared/enums';
@@ -8,6 +8,12 @@ import { Subject } from 'rxjs';
 import { ActionDispatcherService } from '../../services/action-dispatcher.service';
 import { filter, takeUntil } from 'rxjs/operators';
 import { ActionDirective } from '../support/action.directive';
+import { EsriEventEmitter } from '../../shared/esri-event-emitter';
+
+export interface FeatureLayerViewEvent {
+  view: __esri.View;
+  layerView: __esri.FeatureLayerView;
+}
 
 @Component({
   selector: 'feature-layer',
@@ -59,7 +65,11 @@ export class FeatureLayerComponent extends LayerComponentBase<__esri.FeatureLaye
   }
   @Input()
   set portalId(value: string) {
+    if (this.instance != null) {
+      throw new Error(`You cannot ${this.portalSet ? 'change' : 'set'} the portalId value after the layer has been created.`);
+    }
     this._portalId = value;
+    this.portalSet = true;
   }
   @Input()
   set refreshInterval(value: number) {
@@ -67,7 +77,15 @@ export class FeatureLayerComponent extends LayerComponentBase<__esri.FeatureLaye
   }
   @Input()
   set source(value: __esri.Graphic[]) {
+    if (this.instance != null) {
+      if (!this.sourceSet) {
+        throw new Error(`You cannot 'set' the source value after the layer has been created.`);
+      } else {
+        this.updateFeatures(value);
+      }
+    }
     this._source = value;
+    this.sourceSet = true;
   }
   @Input()
   set spatialReference(value: __esri.SpatialReference) {
@@ -79,15 +97,26 @@ export class FeatureLayerComponent extends LayerComponentBase<__esri.FeatureLaye
   }
   @Input()
   set url(value: string) {
+    if (this.instance != null) {
+      throw new Error(`You cannot ${this.urlSet ? 'change' : 'set'} the url value after the layer has been created.`);
+    }
     this._url = value;
+    this.urlSet = true;
   }
 
-  private _portalId: string;
+  @Output() layerViewCreated = new EsriEventEmitter<FeatureLayerViewEvent>('layerview-create');
+  @Output() layerViewDestroyed = new EsriEventEmitter<FeatureLayerViewEvent>('layerview-destroyed');
+
+  private sourceSet = false;
+  private portalSet = false;
+  private urlSet = false;
   // noinspection JSMismatchedCollectionQueryUpdate
   private _source: __esri.Graphic[];
+  private _portalId: string;
   private _url: string;
-  private isValid = true;
   private destroyed$ = new Subject();
+
+  private get isValid() { return (Number(this.sourceSet) + Number(this.portalSet) + Number(this.urlSet)) === 1; }
   layerType: LayerType = LayerType.FeatureLayer;
 
   @ContentChildren(LabelClassComponent) labelChildren: QueryList<LabelClassComponent>;
@@ -104,31 +133,37 @@ export class FeatureLayerComponent extends LayerComponentBase<__esri.FeatureLaye
     ).subscribe(li => this.createListItem(li));
   }
 
+  ngAfterContentInit() {
+    this.labelChildren.changes.pipe(
+      filter(() => this.instance != null),
+      takeUntil(this.destroyed$)
+    ).subscribe(async (labels: LabelClassComponent[]) => {
+      this.instance.labelingInfo = [];
+      for (const labelComp of labels) {
+        this.instance.labelingInfo.push(await labelComp.createInstance());
+      }
+    });
+  }
+
   ngOnDestroy(): void {
     this.destroyed$.next();
   }
 
-  ngAfterContentInit(): void {
-    let sources = 0;
-    if (this._url != null) ++sources;
-    if (this._portalId != null) ++sources;
-    if (this._source != null) ++sources;
-    if (sources === 0 || sources > 1) {
-      this.isValid = false;
-      throw new Error('A feature layer must have one and only one data source (url, portalId, or source)');
-    }
-  }
-
   async createInstance(): Promise<__esri.FeatureLayer> {
+    if (this.instance != null) return this.instance;
+
+    if (!this.isValid) return Promise.reject('A feature layer must have one and only one data source (url, portalId, or source)');
+
     type modules = [typeof import ('esri/layers/FeatureLayer')];
-    if (!this.isValid) return Promise.reject('Invalid Feature Layer');
     const [ FeatureLayer ] = await loadEsriModules<modules>(['esri/layers/FeatureLayer']);
+
     const params = createCtorParameterObject<__esri.FeatureLayerProperties>(this);
     if (this.labelChildren.length > 0) {
       params.labelingInfo = await loadAsyncChildren(this.labelChildren.toArray());
     }
     this.instance = new FeatureLayer(params);
-    this.instanceCreated.emit(this.instance);
+    this.instance.when(() => this.createSubscribedHandlers());
+    this.layerCreated.emit(this.instance);
     return this.instance;
   }
 
@@ -143,5 +178,24 @@ export class FeatureLayerComponent extends LayerComponentBase<__esri.FeatureLaye
       result.push(currentActions.map(a => a.createInstance()));
     }
     item.actionsSections = result as any;
+  }
+
+  private updateFeatures(features: __esri.Graphic[]): void {
+    const oid = this.instance.objectIdField;
+    this.instance.queryFeatures().then(featureSet => {
+      const currentGraphics: __esri.Graphic[] = featureSet.features;
+      const currentGraphicIds = new Set<string>(currentGraphics.map(g => g.attributes[oid].toString()));
+      const newGraphicIds = new Set<string>(features.map(g => g.attributes[oid].toString()));
+      const adds = features.filter(g => !currentGraphicIds.has(g.attributes[oid].toString()));
+      const deletes = currentGraphics.filter(g => !newGraphicIds.has(g.attributes[oid]));
+      const updates = features.filter(g => currentGraphicIds.has(g.attributes[oid].toString()));
+      const edits: __esri.FeatureLayerApplyEditsEdits = {};
+      if (adds.length > 0) edits.addFeatures = adds;
+      if (deletes.length > 0) edits.deleteFeatures = deletes;
+      if (updates.length > 0) edits.updateFeatures = updates;
+      if (edits.hasOwnProperty('addFeatures') || edits.hasOwnProperty('deleteFeatures') || edits.hasOwnProperty('updateFeatures')) {
+        this.instance.applyEdits(edits);
+      }
+    });
   }
 }

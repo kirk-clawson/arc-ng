@@ -24,8 +24,11 @@ export class BasemapGalleryDirective extends WidgetComponentBase<__esri.BasemapG
   @Output() activeBasemapChange = new EsriWatchEmitter<__esri.Basemap>('activeBasemap');
 
   async createWidget(view: __esri.MapView, isHidden?: boolean): Promise<__esri.BasemapGallery> {
+    if (this.instance != null) return this.instance;
+
     type modules = [typeof import ('esri/widgets/BasemapGallery')];
     const [ BaseMapGallery ] = await loadEsriModules<modules>(['esri/widgets/BasemapGallery']);
+
     if (isHidden) {
       this.container = document.createElement('div');
     }

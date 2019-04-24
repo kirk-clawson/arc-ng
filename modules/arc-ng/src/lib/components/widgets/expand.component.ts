@@ -69,8 +69,11 @@ export class ExpandComponent extends WidgetComponentBase<__esri.Expand> implemen
   }
 
   async createWidget(view: __esri.MapView, isHidden?: boolean): Promise<__esri.Expand> {
+    if (this.instance != null) return this.instance;
+
     type modules = [typeof import ('esri/widgets/Expand')];
     const [ Expand ] = await loadEsriModules<modules>(['esri/widgets/Expand']);
+
     const params = createCtorParameterObject<__esri.ExpandProperties>(this);
     params.view = view;
     if (this.child != null) {

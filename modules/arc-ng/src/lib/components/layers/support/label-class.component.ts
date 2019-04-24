@@ -85,8 +85,11 @@ export class LabelClassComponent extends EsriAsyncComponentBase<__esri.LabelClas
   }
 
   async createInstance(): Promise<__esri.LabelClass> {
+    if (this.instance != null) return this.instance;
+
     type modules = [typeof import ('esri/layers/support/LabelClass')];
     const [ LabelClass ] = await loadEsriModules<modules>(['esri/layers/support/LabelClass']);
+
     const params = createCtorParameterObject<__esri.LabelClassProperties>(this);
     if (params.symbol == null) {
       params.symbol = DEFAULT_SYMBOL;

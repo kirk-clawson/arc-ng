@@ -1,6 +1,6 @@
 /* tslint:disable:variable-name */
 import { EventEmitter, Input, Output } from '@angular/core';
-import { EsriAsyncComponentBase } from './esri-component-base';
+import { EsriEventedBase } from './esri-component-base';
 import { LayerType, ListMode } from './enums';
 
 export const layerBuilder = (parent: __esri.LayersMixin) => async (l: LayerComponentBase<__esri.Layer>) => {
@@ -12,7 +12,7 @@ export const layerBuilder = (parent: __esri.LayersMixin) => async (l: LayerCompo
   }
 };
 
-export abstract class LayerComponentBase<T extends __esri.Layer> extends EsriAsyncComponentBase<T> {
+export abstract class LayerComponentBase<T extends __esri.Layer> extends EsriEventedBase<T> {
 
   @Input()
   set LayerUniqueId(value: string) {
@@ -39,7 +39,7 @@ export abstract class LayerComponentBase<T extends __esri.Layer> extends EsriAsy
     this.__listIndex = value;
   }
 
-  @Output() instanceCreated = new EventEmitter<__esri.Layer>();
+  @Output() layerCreated = new EventEmitter<__esri.Layer>();
 
   private __listIndex?: number;
 

@@ -1,4 +1,5 @@
 import { EsriWatchEmitter } from './esri-watch-emitter';
+import { EsriEventEmitter } from './esri-event-emitter';
 
 export class EsriComponentBase<T> {
   protected instance: T;
@@ -42,4 +43,14 @@ export const loadAutoCastChildren = <C extends __esri.Accessor>(children: EsriAu
 };
 export abstract class EsriAutoCastComponentBase<T extends __esri.Accessor> extends EsriAccessorBase<T> {
   abstract createInstance(): any;
+}
+
+export abstract class EsriEventedBase<T extends __esri.Evented & __esri.Accessor> extends EsriAsyncComponentBase<T> {
+  protected createSubscribedHandlers(): void {
+    Object.values(this).forEach(v => {
+      if (v instanceof EsriEventEmitter) {
+        v.init(this.instance);
+      }
+    });
+  }
 }
