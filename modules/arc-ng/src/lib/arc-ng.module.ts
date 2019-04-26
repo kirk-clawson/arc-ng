@@ -3,7 +3,7 @@ import * as esriLoader from 'esri-loader';
 import { ILoadScriptOptions } from 'esri-loader';
 import { MapComponent } from './components/map/map.component';
 import { BasemapGalleryDirective } from './components/widgets/basemap-gallery.directive';
-import { ExpandComponent } from './components/widgets/expand.component';
+import { ExpandDirective } from './components/widgets/expand.directive';
 import { FeatureLayerComponent } from './components/layers/feature-layer.component';
 import { LayerListDirective } from './components/widgets/layer-list.directive';
 import { GroupLayerComponent } from './components/layers/group-layer.component';
@@ -27,7 +27,7 @@ export function init(config: ILoadScriptOptions) {
 const publicComponents = [
   MapComponent,
   BasemapGalleryDirective,
-  ExpandComponent,
+  ExpandDirective,
   FeatureLayerComponent,
   LayerListDirective,
   GroupLayerComponent,

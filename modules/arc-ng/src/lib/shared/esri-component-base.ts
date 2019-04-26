@@ -1,8 +1,10 @@
 import { EsriWatchEmitter } from './esri-watch-emitter';
 import { EsriEventEmitter } from './esri-event-emitter';
+import { EventEmitter, InjectionToken } from '@angular/core';
+import { Observable } from 'rxjs';
 
 export class EsriComponentBase<T> {
-  protected instance: T;
+  instance: T;
 
   protected setField<K extends keyof T>(fieldName: K, value: T[K]): void {
     const localField = '_' + fieldName;
@@ -53,4 +55,15 @@ export abstract class EsriEventedBase<T extends __esri.Evented & __esri.Accessor
       }
     });
   }
+}
+
+export const viewContainerToken = new InjectionToken<ViewContainer>('arcng-view-container');
+export interface ViewContainer {
+  viewConstructed$: Observable<__esri.MapView | __esri.SceneView>;
+  viewReady: EventEmitter<__esri.MapView | __esri.SceneView>;
+}
+
+export const mapContainerToken = new InjectionToken<MapContainer>('arcng-map-container');
+export interface MapContainer {
+  mapConstructed$: Observable<__esri.Map>;
 }

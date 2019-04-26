@@ -1,19 +1,23 @@
 import {
   AfterContentInit,
   ChangeDetectionStrategy,
-  Component, ContentChildren,
+  Component,
+  ContentChildren,
   ElementRef,
   EventEmitter,
+  forwardRef,
   Input,
-  Output, QueryList,
+  Output,
+  QueryList,
   ViewChild,
 } from '@angular/core';
 import { createCtorParameterObject, isEmpty, loadEsriModules, trimEmptyFields } from '../../shared/utils';
 import { EsriEventEmitter } from '../../shared/esri-event-emitter';
-import { widgetBuilder, WidgetComponentBase } from '../../shared/widget-component-base';
-import { map } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 import { layerBuilder, LayerComponentBase } from '../../shared/layer-component-base';
 import { ActionDispatcherService } from '../../services/action-dispatcher.service';
+import { MapContainer, mapContainerToken, ViewContainer, viewContainerToken } from '../../shared/esri-component-base';
+import { BehaviorSubject } from 'rxjs';
 
 export class EsriHitTestEmitter<T = __esri.HitTestResult> extends EsriEventEmitter<__esri.HitTestResult> {
   init(source: __esri.MapView) {
@@ -36,9 +40,13 @@ export type baseMapNames = 'topo' | 'streets' | 'satellite' | 'hybrid' | 'dark-g
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [ActionDispatcherService]
+  providers: [
+    ActionDispatcherService,
+    { provide: viewContainerToken, useExisting: forwardRef(() => MapComponent) },
+    { provide: mapContainerToken, useExisting: forwardRef(() => MapComponent) }
+  ]
 })
-export class MapComponent implements AfterContentInit {
+export class MapComponent implements ViewContainer, MapContainer, AfterContentInit {
   @Input()
   set zoom(value: number) {
     this._zoom = value;
@@ -109,7 +117,6 @@ export class MapComponent implements AfterContentInit {
     this._baseMap = value;
   }
 
-  @Output() mapReady             = new EventEmitter<__esri.MapView>();
   @Output() mapBlur              = new EsriEventEmitter<__esri.MapViewBlurEvent>('blur');
   @Output() mapClick             = new EsriEventEmitter<__esri.MapViewClickEvent>('click');
   @Output() mapClickHit          = new EsriHitTestEmitter('click');
@@ -140,8 +147,7 @@ export class MapComponent implements AfterContentInit {
   @Output() mapPointerUpHit      = new EsriHitTestEmitter('pointer-up');
   @Output() mapResize            = new EsriEventEmitter<__esri.MapViewResizeEvent>('resize');
 
-  private map: import ('esri/Map');
-  private mapView: import ('esri/views/MapView');
+  @Output() viewReady            = new EventEmitter<__esri.MapView>();
 
   private _baseMap: __esri.Basemap | baseMapNames;
   private _breakpoints: __esri.BreakpointsOwnerBreakpoints;
@@ -158,8 +164,12 @@ export class MapComponent implements AfterContentInit {
   private _viewpoint: __esri.ViewpointProperties;
   private _zoom: number;
 
+  private mapView = new BehaviorSubject<import ('esri/views/MapView')>(null);
+  viewConstructed$ = this.mapView.pipe(filter(v => v != null));
+  private map = new BehaviorSubject<import ('esri/Map')>(null);
+  mapConstructed$ = this.map.pipe(filter(m => m != null));
+
   @ViewChild('mapContainer') mapContainer: ElementRef;
-  @ContentChildren(WidgetComponentBase) childWidgets: QueryList<WidgetComponentBase<__esri.Widget>>;
   @ContentChildren(LayerComponentBase) childLayers: QueryList<LayerComponentBase<__esri.Layer>>;
 
   constructor() { }
@@ -168,15 +178,17 @@ export class MapComponent implements AfterContentInit {
     type ModuleTypes = [ typeof import ('esri/Map'), typeof import ('esri/views/MapView')];
     try {
       const [Map, MapView] = await loadEsriModules<ModuleTypes>(['esri/Map', 'esri/views/MapView']);
+
       const mapParams = trimEmptyFields({ basemap: this._baseMap });
-      this.map = isEmpty(mapParams) ? new Map() : new Map(mapParams);
+      const map = isEmpty(mapParams) ? new Map() : new Map(mapParams);
+      this.map.next(map);
       const viewParams = this.createConstructorParameters();
-      this.mapView = isEmpty(viewParams) ? new MapView() : new MapView(viewParams);
+      const mapView = isEmpty(viewParams) ? new MapView() : new MapView(viewParams);
+      this.mapView.next(mapView);
       await this.setupLayers();
-      await this.mapView.when();
+      await mapView.when();
       this.createSubscribedHandlers();
-      await this.setupWidgets();
-      this.mapReady.emit(this.mapView);
+      this.viewReady.emit(mapView);
     } catch (e) {
       console.error('There was an error Initializing the Map and MapView.', e);
     }
@@ -184,7 +196,7 @@ export class MapComponent implements AfterContentInit {
 
   private createConstructorParameters(): __esri.MapViewProperties {
     const result = createCtorParameterObject<__esri.MapViewProperties>(this);
-    result.map = this.map;
+    result.map = this.map.getValue();
     result.container = this.mapContainer.nativeElement;
     return result;
   }
@@ -192,23 +204,12 @@ export class MapComponent implements AfterContentInit {
   private createSubscribedHandlers(): void {
     Object.values(this).forEach(v => {
       if (v instanceof EsriEventEmitter) {
-        v.init(this.mapView);
+        v.init(this.mapView.getValue());
       }
     });
   }
 
   private async setupLayers() {
-    await Promise.all(this.childLayers.map(layerBuilder(this.map)));
-  }
-
-  private async setupWidgets() {
-    await this.createWidgets(this.childWidgets.toArray());
-    this.childWidgets.changes.pipe(
-      map((widgets: WidgetComponentBase<__esri.Widget>[]) => this.createWidgets(widgets.filter(w => !w.isAttached)))
-    ).subscribe();
-  }
-
-  private async createWidgets(widgetComponents: WidgetComponentBase<__esri.Widget>[]) {
-    await Promise.all(widgetComponents.map(widgetBuilder(this.mapView)));
+    await Promise.all(this.childLayers.map(layerBuilder(this.map.getValue())));
   }
 }
