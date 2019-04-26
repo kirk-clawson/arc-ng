@@ -62,8 +62,3 @@ export interface ViewContainer {
   viewConstructed$: Observable<__esri.MapView | __esri.SceneView>;
   viewReady: EventEmitter<__esri.MapView | __esri.SceneView>;
 }
-
-export const mapContainerToken = new InjectionToken<MapContainer>('arcng-map-container');
-export interface MapContainer {
-  mapConstructed$: Observable<__esri.Map>;
-}

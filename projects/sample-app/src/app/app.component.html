@@ -1,7 +1,7 @@
 <arcng-map class="map" baseMap="streets-navigation-vector" [zoom]="10" [center]="[-83.4255176, 42.432238]" (viewReady)="onMapReady()">
 
   <basemap-gallery arcngExpand expandTooltip="Expand Basemap Gallery" expandGroup="top-right"
-                   [uiPosition]="uiPositions.TopRight" [uiIndex]="0"></basemap-gallery>
+                   [uiPosition]="uiPositions.TopRight" [uiIndex]="0" *ngIf="showBasemapGallery"></basemap-gallery>
   <layer-list arcngExpand expandTooltip="Expand Layer List" expandGroup="top-right"
               [uiPosition]="uiPositions.TopRight" [iconNumber]="2"></layer-list>
 
@@ -14,8 +14,8 @@
         <label-class expression="$feature.STATUS" where="STATUS <> 'NEW'">
           <text-symbol [color]="[11, 127, 52, 1]" [haloColor]="[255, 255, 255, 0.75]" haloSize="1px" [fontSize]="12"></text-symbol>
         </label-class>
-        <action (click)="onActionClick(1)" [className]="icons.BlankMapPin" title="Action 1"></action>
-        <action (click)="onActionClick(2)" [className]="icons.Basemap" title="Action 2"></action>
+        <action (click)="onActionClick(1)" [className]="icons.BlankMapPin" title="Remove Basemap Gallery"></action>
+        <action (click)="onActionClick(2)" [className]="icons.Basemap" title="Add Basemap Gallery"></action>
       </feature-layer>
     </group-layer>
     <feature-layer url="https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/USA_Counties/FeatureServer/0" [visible]="false"></feature-layer>

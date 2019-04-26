@@ -16,7 +16,7 @@ import { EsriEventEmitter } from '../../shared/esri-event-emitter';
 import { filter } from 'rxjs/operators';
 import { layerBuilder, LayerComponentBase } from '../../shared/layer-component-base';
 import { ActionDispatcherService } from '../../services/action-dispatcher.service';
-import { MapContainer, mapContainerToken, ViewContainer, viewContainerToken } from '../../shared/esri-component-base';
+import { ViewContainer, viewContainerToken } from '../../shared/esri-component-base';
 import { BehaviorSubject } from 'rxjs';
 
 export class EsriHitTestEmitter<T = __esri.HitTestResult> extends EsriEventEmitter<__esri.HitTestResult> {
@@ -42,11 +42,10 @@ export type baseMapNames = 'topo' | 'streets' | 'satellite' | 'hybrid' | 'dark-g
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     ActionDispatcherService,
-    { provide: viewContainerToken, useExisting: forwardRef(() => MapComponent) },
-    { provide: mapContainerToken, useExisting: forwardRef(() => MapComponent) }
+    { provide: viewContainerToken, useExisting: forwardRef(() => MapComponent) }
   ]
 })
-export class MapComponent implements ViewContainer, MapContainer, AfterContentInit {
+export class MapComponent implements ViewContainer, AfterContentInit {
   @Input()
   set zoom(value: number) {
     this._zoom = value;
@@ -164,10 +163,9 @@ export class MapComponent implements ViewContainer, MapContainer, AfterContentIn
   private _viewpoint: __esri.ViewpointProperties;
   private _zoom: number;
 
+  private map: import ('esri/Map');
   private mapView = new BehaviorSubject<import ('esri/views/MapView')>(null);
   viewConstructed$ = this.mapView.pipe(filter(v => v != null));
-  private map = new BehaviorSubject<import ('esri/Map')>(null);
-  mapConstructed$ = this.map.pipe(filter(m => m != null));
 
   @ViewChild('mapContainer') mapContainer: ElementRef;
   @ContentChildren(LayerComponentBase) childLayers: QueryList<LayerComponentBase<__esri.Layer>>;
@@ -180,8 +178,7 @@ export class MapComponent implements ViewContainer, MapContainer, AfterContentIn
       const [Map, MapView] = await loadEsriModules<ModuleTypes>(['esri/Map', 'esri/views/MapView']);
 
       const mapParams = trimEmptyFields({ basemap: this._baseMap });
-      const map = isEmpty(mapParams) ? new Map() : new Map(mapParams);
-      this.map.next(map);
+      this.map = isEmpty(mapParams) ? new Map() : new Map(mapParams);
       const viewParams = this.createConstructorParameters();
       const mapView = isEmpty(viewParams) ? new MapView() : new MapView(viewParams);
       this.mapView.next(mapView);
@@ -196,7 +193,7 @@ export class MapComponent implements ViewContainer, MapContainer, AfterContentIn
 
   private createConstructorParameters(): __esri.MapViewProperties {
     const result = createCtorParameterObject<__esri.MapViewProperties>(this);
-    result.map = this.map.getValue();
+    result.map = this.map;
     result.container = this.mapContainer.nativeElement;
     return result;
   }
@@ -210,6 +207,6 @@ export class MapComponent implements ViewContainer, MapContainer, AfterContentIn
   }
 
   private async setupLayers() {
-    await Promise.all(this.childLayers.map(layerBuilder(this.map.getValue())));
+    await Promise.all(this.childLayers.map(layerBuilder(this.map)));
   }
 }

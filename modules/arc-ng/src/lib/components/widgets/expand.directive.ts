@@ -1,6 +1,6 @@
 import {
   Directive,
-  Input,
+  Input, OnDestroy,
   Output,
 } from '@angular/core';
 import { IconClass, WidgetMode } from '../../shared/enums';
@@ -11,7 +11,7 @@ import { EsriAccessorBase } from '../../shared/esri-component-base';
 @Directive({
   selector: '[arcngExpand]'
 })
-export class ExpandDirective extends EsriAccessorBase<__esri.Expand> {
+export class ExpandDirective extends EsriAccessorBase<__esri.Expand> implements OnDestroy {
   @Input()
   set autoCollapse(value: boolean) {
     this.setField('autoCollapse', value);
@@ -54,6 +54,10 @@ export class ExpandDirective extends EsriAccessorBase<__esri.Expand> {
   @Output() expandedChange = new EsriWatchEmitter<boolean>('expanded');
 
   private _expanded: boolean;
+
+  ngOnDestroy(): void {
+    this.instance.destroy();
+  }
 
   async createInstance(view: __esri.MapViewProperties | __esri.SceneViewProperties,
                        content: __esri.WidgetProperties,
