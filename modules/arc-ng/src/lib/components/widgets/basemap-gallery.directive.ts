@@ -1,10 +1,10 @@
-import { Directive, forwardRef, Inject, Input, OnDestroy, OnInit, Optional, Output } from '@angular/core';
-import { WidgetComponentBase } from '../../shared/widget-component-base';
-import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
+import { Directive, forwardRef, Input, OnDestroy, OnInit, Optional, Output } from '@angular/core';
+import { take } from 'rxjs/operators';
 import { IconClass } from '../../shared/enums';
 import { EsriWatchEmitter } from '../../shared/esri-watch-emitter';
-import { ViewContainer, viewContainerToken } from '../../shared/esri-component-base';
-import { take } from 'rxjs/operators';
+import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
+import { WidgetComponentBase } from '../../shared/widget-component-base';
+import { MapComponent } from '../map/map.component';
 import { ExpandDirective } from './expand.directive';
 
 @Directive({
@@ -26,7 +26,7 @@ export class BasemapGalleryDirective extends WidgetComponentBase<__esri.BasemapG
   }
   @Output() activeBasemapChange = new EsriWatchEmitter<__esri.Basemap>('activeBasemap');
 
-  constructor(@Inject(viewContainerToken) private viewContainer: ViewContainer, @Optional() private expander?: ExpandDirective) {
+  constructor(private parent: MapComponent, @Optional() private expander?: ExpandDirective) {
     super();
   }
 
@@ -34,7 +34,7 @@ export class BasemapGalleryDirective extends WidgetComponentBase<__esri.BasemapG
     type modules = [typeof import ('esri/widgets/BasemapGallery')];
     const [ BaseMapGallery ] = await loadEsriModules<modules>(['esri/widgets/BasemapGallery']);
 
-    this.viewContainer.viewConstructed$.pipe(
+    this.parent.getInstance$().pipe(
       take(1)
     ).subscribe(async view => {
       // tslint:disable-next-line:no-string-literal
@@ -45,17 +45,22 @@ export class BasemapGalleryDirective extends WidgetComponentBase<__esri.BasemapG
       const params = createCtorParameterObject<__esri.BasemapGalleryProperties>(this);
       params.view = view;
       this.instance = new BaseMapGallery(params);
-      this.createWatchedHandlers();
+      this.configureWatchEmitters();
       if (this.expander != null) {
-        const expander = await this.expander.createInstance(view, this.instance, localContainer);
-        view.ui.add(expander, this.getPosition());
+        await this.expander.createInstance(view, this.instance, localContainer);
+        this.parent.attachWidget(this.expander.instance, this.__uiPosition);
       } else {
-        view.ui.add(this.instance, this.getPosition());
+        this.parent.attachWidget(this.instance, this.__uiPosition);
       }
     });
   }
 
   ngOnDestroy(): void {
+    if (this.expander != null) {
+      this.parent.detachWidget(this.expander.instance);
+    } else {
+      this.parent.detachWidget(this.instance);
+    }
     this.instance.destroy();
   }
 }

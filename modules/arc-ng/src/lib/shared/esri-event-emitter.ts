@@ -34,3 +34,14 @@ export class EsriEventEmitter<T> extends EventEmitter<T> {
     super.unsubscribe();
   }
 }
+
+export class EsriHitTestEmitter<T = __esri.HitTestResult> extends EsriEventEmitter<__esri.HitTestResult> {
+  init(source: __esri.MapView) {
+    if (this.observers.length > 0) {
+      this.handleCleanup();
+      this.handle = source.on(this.esriEventName, e => {
+        source.hitTest(e).then(r => this.emit(r));
+      });
+    }
+  }
+}

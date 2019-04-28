@@ -1,14 +1,13 @@
 import { AfterContentInit, Component, ContentChildren, forwardRef, Input, OnDestroy, OnInit, Output, QueryList } from '@angular/core';
-import { createCtorParameterObject, groupBy, loadEsriModules } from '../../shared/utils';
-import { LayerComponentBase } from '../../shared/layer-component-base';
-import { LayerType } from '../../shared/enums';
-import { LabelClassComponent } from './support/label-class.component';
-import { loadAsyncChildren } from '../../shared/esri-component-base';
-import { Subject } from 'rxjs';
+import { combineLatest, Observable, Subject } from 'rxjs';
+import { filter, map, take, takeUntil } from 'rxjs/operators';
 import { ActionDispatcherService } from '../../services/action-dispatcher.service';
-import { filter, takeUntil } from 'rxjs/operators';
-import { ActionDirective } from '../support/action.directive';
+import { LayerType } from '../../shared/enums';
 import { EsriEventEmitter } from '../../shared/esri-event-emitter';
+import { LayerComponentBase } from '../../shared/layer-component-base';
+import { createCtorParameterObject, groupBy, loadEsriModules } from '../../shared/utils';
+import { ActionDirective } from '../support/action.directive';
+import { LabelClassComponent } from './support/label-class.component';
 
 export interface FeatureLayerViewEvent {
   view: __esri.View;
@@ -79,7 +78,7 @@ export class FeatureLayerComponent extends LayerComponentBase<__esri.FeatureLaye
   set source(value: __esri.Graphic[]) {
     if (this.instance != null) {
       if (!this.sourceSet) {
-        throw new Error(`You cannot 'set' the source value after the layer has been created.`);
+        throw new Error(`You cannot change the source value after the layer has been created.`);
       } else {
         this.updateFeatures(value);
       }
@@ -126,45 +125,48 @@ export class FeatureLayerComponent extends LayerComponentBase<__esri.FeatureLaye
     super();
   }
 
-  ngOnInit(): void {
+  async ngOnInit() {
+    if (!this.isValid) throw new Error('A feature layer must have one and only one data source (url, portalId, or source)');
+
     this.dispatcher.updateListItem$.pipe(
       filter(li => li.layer === this.instance),
       takeUntil(this.destroyed$)
     ).subscribe(li => this.createListItem(li));
+    type modules = [typeof import ('esri/layers/FeatureLayer')];
+    const [ FeatureLayer ] = await loadEsriModules<modules>(['esri/layers/FeatureLayer']);
+    const params = createCtorParameterObject<__esri.FeatureLayerProperties>(this);
+    this.instance = new FeatureLayer(params);
+    this.configureEventEmitters();
+    this.configureWatchEmitters();
   }
 
   ngAfterContentInit() {
-    this.labelChildren.changes.pipe(
-      filter(() => this.instance != null),
-      takeUntil(this.destroyed$)
-    ).subscribe(async (labels: LabelClassComponent[]) => {
-      this.instance.labelingInfo = [];
-      for (const labelComp of labels) {
-        this.instance.labelingInfo.push(await labelComp.createInstance());
-      }
+    this.getInstance$().pipe(
+      take(1)
+    ).subscribe(() => {
+      const labels = this.labelChildren.map(lc => lc.getInstance$());
+      if (this.instance.labelingInfo == null) this.instance.labelingInfo = [];
+      this.setupChildren(labels);
+      this.setupChildWatchers();
     });
   }
 
   ngOnDestroy(): void {
     this.destroyed$.next();
+    this.instance.destroy();
   }
 
-  async createInstance(): Promise<__esri.FeatureLayer> {
-    if (this.instance != null) return this.instance;
+  private setupChildWatchers(): void {
+    this.labelChildren.changes.pipe(
+      map((labelComponents: LabelClassComponent[]) => labelComponents.map(lc => lc.getInstance$()))
+    ).subscribe(labels => {
+      this.instance.labelingInfo = [];
+      this.setupChildren(labels);
+    });
+  }
 
-    if (!this.isValid) return Promise.reject('A feature layer must have one and only one data source (url, portalId, or source)');
-
-    type modules = [typeof import ('esri/layers/FeatureLayer')];
-    const [ FeatureLayer ] = await loadEsriModules<modules>(['esri/layers/FeatureLayer']);
-
-    const params = createCtorParameterObject<__esri.FeatureLayerProperties>(this);
-    if (this.labelChildren.length > 0) {
-      params.labelingInfo = await loadAsyncChildren(this.labelChildren.toArray());
-    }
-    this.instance = new FeatureLayer(params);
-    this.instance.when(() => this.createSubscribedHandlers());
-    this.layerCreated.emit(this.instance);
-    return this.instance;
+  private setupChildren(children: Observable<__esri.LabelClass>[]): void {
+    combineLatest(children).pipe(take(1)).subscribe(labels => this.instance.labelingInfo.push(...labels));
   }
 
   private createListItem(item: __esri.ListItem): void {

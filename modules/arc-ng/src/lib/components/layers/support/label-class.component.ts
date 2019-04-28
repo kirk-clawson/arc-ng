@@ -1,9 +1,10 @@
 import { AfterContentInit, Component, ContentChild, Input } from '@angular/core';
-import { EsriAsyncComponentBase } from '../../../shared/esri-component-base';
+import { take } from 'rxjs/operators';
 import { LayerComponentBase } from '../../../shared/layer-component-base';
 import { LayerType, PointLabelPlacement, PolygonPointPlacement, PolylineLabelPlacement } from '../../../shared/enums';
 import { createCtorParameterObject, loadEsriModules } from '../../../shared/utils';
 import { TextSymbolDirective } from '../../symbols/text-symbol.directive';
+import { EsriAccessorBase } from '../../../shared/esri-component-base';
 
 const DEFAULT_SYMBOL = {
   type: 'text',  // auto casts as new TextSymbol()
@@ -23,7 +24,7 @@ const DEFAULT_SYMBOL = {
   selector: 'label-class',
   template: '<ng-content></ng-content>'
 })
-export class LabelClassComponent extends EsriAsyncComponentBase<__esri.LabelClass> implements AfterContentInit {
+export class LabelClassComponent extends EsriAccessorBase<__esri.LabelClass> implements AfterContentInit {
   @Input()
   set expression(value: string) {
     if (this.__expression !== value) {
@@ -65,36 +66,28 @@ export class LabelClassComponent extends EsriAsyncComponentBase<__esri.LabelClas
 
   // tslint:disable-next-line:variable-name
   private __expression: string;
+  private textDirective: TextSymbolDirective;
   private readonly parentLayerType: LayerType;
 
   @ContentChild(TextSymbolDirective)
   set textChild(value: TextSymbolDirective) {
-    this.symbolComponent = value;
+    this.textDirective = value;
   }
-  private symbolComponent: TextSymbolDirective;
 
   constructor(parent: LayerComponentBase<__esri.Layer>) {
     super();
     this.parentLayerType = parent.layerType;
   }
 
-  ngAfterContentInit(): void {
-    if (this.symbolComponent != null) {
-      this.setAutoCastField('symbol', this.symbolComponent.createInstance());
-    }
-  }
-
-  async createInstance(): Promise<__esri.LabelClass> {
-    if (this.instance != null) return this.instance;
-
+  async ngAfterContentInit() {
     type modules = [typeof import ('esri/layers/support/LabelClass')];
     const [ LabelClass ] = await loadEsriModules<modules>(['esri/layers/support/LabelClass']);
-
-    const params = createCtorParameterObject<__esri.LabelClassProperties>(this);
-    if (params.symbol == null) {
-      params.symbol = DEFAULT_SYMBOL;
-    }
-    this.instance = new LabelClass(params);
-    return this.instance;
+    this.textDirective.getInstance$().pipe(
+      take(1)
+    ).subscribe(() => {
+      const params = createCtorParameterObject<__esri.LabelClassProperties>(this);
+      params.symbol = this.textDirective.instance || DEFAULT_SYMBOL;
+      this.instance = new LabelClass(params);
+    });
   }
 }

@@ -13,8 +13,8 @@ export class AppComponent {
 
   showBasemapGallery = true;
 
-  onMapReady() {
-    console.log('Map is Ready');
+  onMapReady(event: __esri.MapView) {
+    console.log('Map is Ready', event);
   }
 
   onActionClick(actionNum: number) {

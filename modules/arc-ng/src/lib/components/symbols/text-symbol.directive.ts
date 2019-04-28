@@ -1,14 +1,14 @@
 /* tslint:disable:variable-name */
-import { Directive, Input } from '@angular/core';
-import { EsriAutoCastComponentBase } from '../../shared/esri-component-base';
-import { AutoCastColor, autoCastToColor } from '../../shared/type-utils';
+import { Directive, Input, OnInit } from '@angular/core';
+import { AutoCastColor, EsriAutoCast } from '../../shared/type-utils';
 import { HorizontalAlignment, VerticalAlignment } from '../../shared/enums';
 import { createCtorParameterObject, trimEmptyFields } from '../../shared/utils';
+import { EsriComponentBase } from '../../shared/esri-component-base';
 
 @Directive({
   selector: 'text-symbol'
 })
-export class TextSymbolDirective extends EsriAutoCastComponentBase<__esri.TextSymbol> {
+export class TextSymbolDirective extends EsriComponentBase<EsriAutoCast<__esri.TextSymbol>> implements OnInit {
   @Input()
   set angle(value: number) {
     this.setField('angle', value);
@@ -27,7 +27,7 @@ export class TextSymbolDirective extends EsriAutoCastComponentBase<__esri.TextSy
   }
   @Input()
   set color(value: AutoCastColor) {
-    if (autoCastToColor(value)) this.setField('color', value);
+    this.setAutoCastField('color', value);
   }
   @Input()
   set haloColor(value: AutoCastColor) {
@@ -90,7 +90,7 @@ export class TextSymbolDirective extends EsriAutoCastComponentBase<__esri.TextSy
   // noinspection JSUnusedLocalSymbols
   private _type = 'text';
 
-  createInstance(): __esri.TextSymbolProperties {
+  ngOnInit(): void {
     const result: any = createCtorParameterObject(this);
     result.font = trimEmptyFields({
       family: this.__fontFamily,
@@ -98,6 +98,7 @@ export class TextSymbolDirective extends EsriAutoCastComponentBase<__esri.TextSy
       weight: this.__fontWeight,
       size: this.__fontSize
     });
-    return result;
+    this.instance = result;
+    console.log('Text Instance set');
   }
 }

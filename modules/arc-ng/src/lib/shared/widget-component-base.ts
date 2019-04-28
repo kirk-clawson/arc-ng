@@ -13,19 +13,10 @@ export abstract class WidgetComponentBase<T extends __esri.Widget> extends EsriA
     this.setField('container', value);
   }
   @Input()
-  set uiIndex(value: number) {
-    this.__index = value;
-  }
-  @Input()
   set uiPosition(value: UIPosition) {
-    this.__position = value;
+    this.__uiPosition = value;
   }
 
-  protected __index?: number;
-  protected __position: UIPosition = UIPosition.Manual;
-
-  getPosition(): string | __esri.UIAddPosition {
-    return this.__index == null ? this.__position : { position: this.__position, index: this.__index };
-  }
+  protected __uiPosition: UIPosition = UIPosition.Manual;
 }
 

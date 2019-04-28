@@ -61,7 +61,7 @@ export class ExpandDirective extends EsriAccessorBase<__esri.Expand> implements 
 
   async createInstance(view: __esri.MapViewProperties | __esri.SceneViewProperties,
                        content: __esri.WidgetProperties,
-                       container?: string | HTMLElement): Promise<__esri.Expand> {
+                       container?: string | HTMLElement) {
     type modules = [typeof import ('esri/widgets/Expand')];
     const [ Expand ] = await loadEsriModules<modules>(['esri/widgets/Expand']);
 
@@ -71,8 +71,7 @@ export class ExpandDirective extends EsriAccessorBase<__esri.Expand> implements 
     params.id = `${content.id}-expander`;
     if (container != null) params.container = container;
     this.instance = new Expand(params);
-    this.createWatchedHandlers();
-    return this.instance;
+    this.configureWatchEmitters();
   }
 
   private handleStateChange(isExpanded: boolean): void {

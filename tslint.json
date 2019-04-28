@@ -71,6 +71,7 @@
     "use-pipe-transform-interface": true,
     "component-class-suffix": true,
     "directive-class-suffix": true,
-    "curly": [true, "ignore-same-line"]
+    "curly": [true, "ignore-same-line"],
+    "no-trailing-whitespace": false
   }
 }

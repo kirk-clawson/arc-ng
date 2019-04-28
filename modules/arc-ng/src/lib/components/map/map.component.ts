@@ -5,30 +5,22 @@ import {
   ContentChildren,
   ElementRef,
   EventEmitter,
-  forwardRef,
   Input,
   Output,
   QueryList,
   ViewChild,
 } from '@angular/core';
-import { createCtorParameterObject, isEmpty, loadEsriModules, trimEmptyFields } from '../../shared/utils';
-import { EsriEventEmitter } from '../../shared/esri-event-emitter';
-import { filter } from 'rxjs/operators';
-import { layerBuilder, LayerComponentBase } from '../../shared/layer-component-base';
+import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
+import { combineLatest, Observable } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 import { ActionDispatcherService } from '../../services/action-dispatcher.service';
-import { ViewContainer, viewContainerToken } from '../../shared/esri-component-base';
-import { BehaviorSubject } from 'rxjs';
-
-export class EsriHitTestEmitter<T = __esri.HitTestResult> extends EsriEventEmitter<__esri.HitTestResult> {
-  init(source: __esri.MapView) {
-    if (this.observers.length > 0) {
-      this.handleCleanup();
-      this.handle = source.on(this.esriEventName, e => {
-        source.hitTest(e).then(r => this.emit(r));
-      });
-    }
-  }
-}
+import { UIPosition } from '../../shared/enums';
+import { EsriEventedBase } from '../../shared/esri-component-base';
+import { EsriEventEmitter, EsriHitTestEmitter } from '../../shared/esri-event-emitter';
+import { LayerComponentBase } from '../../shared/layer-component-base';
+import { isExpandWidget } from '../../shared/type-utils';
+import { createCtorParameterObject, isEmpty, loadEsriModules, trimEmptyFields } from '../../shared/utils';
+import { WidgetComponentBase } from '../../shared/widget-component-base';
 
 export type resizeAlign = 'center' | 'left' | 'right' | 'top' | 'bottom' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 export type baseMapNames = 'topo' | 'streets' | 'satellite' | 'hybrid' | 'dark-gray' | 'gray' | 'national-geographic' | 'oceans' |
@@ -42,78 +34,77 @@ export type baseMapNames = 'topo' | 'streets' | 'satellite' | 'hybrid' | 'dark-g
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     ActionDispatcherService,
-    { provide: viewContainerToken, useExisting: forwardRef(() => MapComponent) }
   ]
 })
-export class MapComponent implements ViewContainer, AfterContentInit {
+export class MapComponent extends EsriEventedBase<import ('esri/views/MapView')> implements OnInit, AfterContentInit {
   @Input()
   set zoom(value: number) {
-    this._zoom = value;
+    this.setField('zoom', value);
   }
 
   @Input()
   set viewpoint(value: __esri.ViewpointProperties) {
-    this._viewpoint = value;
+    this.setAutoCastField('viewpoint', value, true);
   }
 
   @Input()
   set spatialReference(value: __esri.SpatialReferenceProperties) {
-    this._spatialReference = value;
+    this.setAutoCastField('spatialReference', value);
   }
 
   @Input()
   set scale(value: number) {
-    this._scale = value;
+    this.setField('scale', value);
   }
 
   @Input()
   set rotation(value: number) {
-    this._rotation = value;
+    this.setField('rotation', value);
   }
 
   @Input()
   set resizeAlign(value: resizeAlign) {
-    this._resizeAlign = value;
+    this.setField('resizeAlign', value);
   }
 
   @Input()
   set popup(value: __esri.PopupProperties) {
-    this._popup = value;
+    this.setAutoCastField('popup', value);
   }
 
   @Input()
   set padding(value: __esri.ViewPadding) {
-    this._padding = value;
+    this.setField('padding', value);
   }
 
   @Input()
-  set highlightOptions(value: __esri.MapViewHighlightOptionsProperties) {
-    this._highlightOptions = value;
+  set highlightOptions(value: __esri.MapViewHighlightOptions) {
+    this.setField('highlightOptions', value);
   }
 
   @Input()
   set extent(value: __esri.ExtentProperties) {
-    this._extent = value;
+    this.setAutoCastField('extent', value);
   }
 
   @Input()
   set constraints(value: __esri.MapViewConstraints) {
-    this._constraints = value;
+    this.setField('constraints', value);
   }
 
   @Input()
   set center(value: __esri.PointProperties | number[]) {
-    this._center = value;
+    this.setAutoCastField('center', value);
   }
 
   @Input()
   set breakpoints(value: __esri.BreakpointsOwnerBreakpoints) {
-    this._breakpoints = value;
+    this.setField('breakpoints', value);
   }
 
   @Input()
   set baseMap(value: __esri.Basemap | baseMapNames) {
-    this._baseMap = value;
+    this.__baseMap = value;
   }
 
   @Output() mapBlur              = new EsriEventEmitter<__esri.MapViewBlurEvent>('blur');
@@ -148,47 +139,52 @@ export class MapComponent implements ViewContainer, AfterContentInit {
 
   @Output() viewReady            = new EventEmitter<__esri.MapView>();
 
-  private _baseMap: __esri.Basemap | baseMapNames;
-  private _breakpoints: __esri.BreakpointsOwnerBreakpoints;
-  private _center: __esri.PointProperties | number[];
-  private _constraints: __esri.MapViewConstraints;
-  private _extent: __esri.ExtentProperties;
-  private _highlightOptions: __esri.MapViewHighlightOptionsProperties;
-  private _padding: __esri.ViewPadding;
-  private _popup: __esri.PopupProperties;
-  private _resizeAlign: resizeAlign;
-  private _rotation: number;
-  private _scale: number;
-  private _spatialReference: __esri.SpatialReferenceProperties;
-  private _viewpoint: __esri.ViewpointProperties;
-  private _zoom: number;
-
+  // tslint:disable-next-line:variable-name
+  private __baseMap: __esri.Basemap | baseMapNames;
   private map: import ('esri/Map');
-  private mapView = new BehaviorSubject<import ('esri/views/MapView')>(null);
-  viewConstructed$ = this.mapView.pipe(filter(v => v != null));
 
   @ViewChild('mapContainer') mapContainer: ElementRef;
+  @ContentChildren(WidgetComponentBase) childWidgets: QueryList<WidgetComponentBase<__esri.Widget>>;
   @ContentChildren(LayerComponentBase) childLayers: QueryList<LayerComponentBase<__esri.Layer>>;
 
-  constructor() { }
-
-  async ngAfterContentInit() {
-    type ModuleTypes = [ typeof import ('esri/Map'), typeof import ('esri/views/MapView')];
+  async ngOnInit() {
     try {
+      type ModuleTypes = [ typeof import ('esri/Map'), typeof import ('esri/views/MapView')];
       const [Map, MapView] = await loadEsriModules<ModuleTypes>(['esri/Map', 'esri/views/MapView']);
 
-      const mapParams = trimEmptyFields({ basemap: this._baseMap });
+      const mapParams = trimEmptyFields({ basemap: this.__baseMap });
       this.map = isEmpty(mapParams) ? new Map() : new Map(mapParams);
       const viewParams = this.createConstructorParameters();
-      const mapView = isEmpty(viewParams) ? new MapView() : new MapView(viewParams);
-      this.mapView.next(mapView);
-      await this.setupLayers();
-      await mapView.when();
-      this.createSubscribedHandlers();
-      this.viewReady.emit(mapView);
+      this.instance = isEmpty(viewParams) ? new MapView() : new MapView(viewParams);
+      this.configureEventEmitters();
+      this.configureWatchEmitters();
+
+      await this.instance.when();
+      this.viewReady.emit(this.instance);
     } catch (e) {
       console.error('There was an error Initializing the Map and MapView.', e);
     }
+  }
+
+  ngAfterContentInit() {
+    this.getInstance$().pipe(
+      take(1)
+    ).subscribe(() => {
+      const layers = this.childLayers.map(lc => lc.getInstance$());
+      this.watchLayerChanges(layers);
+      this.setupChildWatchers();
+    });
+  }
+
+  attachWidget(widget: __esri.Widget, position: UIPosition) {
+    const index = this.childWidgets.toArray().findIndex(wc => isExpandWidget(widget)
+                                                                          ? wc.instance === widget.content
+                                                                          : wc.instance === widget);
+    this.instance.ui.add(widget, { index, position });
+  }
+
+  detachWidget(widget: __esri.Widget) {
+    this.instance.ui.remove(widget);
   }
 
   private createConstructorParameters(): __esri.MapViewProperties {
@@ -198,15 +194,16 @@ export class MapComponent implements ViewContainer, AfterContentInit {
     return result;
   }
 
-  private createSubscribedHandlers(): void {
-    Object.values(this).forEach(v => {
-      if (v instanceof EsriEventEmitter) {
-        v.init(this.mapView.getValue());
-      }
+  private setupChildWatchers(): void {
+    this.childLayers.changes.pipe(
+      map((layerComponents: LayerComponentBase<__esri.Layer>[]) => layerComponents.map(lc => lc.getInstance$()))
+    ).subscribe(layers => {
+      this.map.layers.removeAll();
+      this.watchLayerChanges(layers);
     });
   }
 
-  private async setupLayers() {
-    await Promise.all(this.childLayers.map(layerBuilder(this.map)));
+  private watchLayerChanges(children: Observable<__esri.Layer>[]) {
+    combineLatest(children).pipe(take(1)).subscribe(layers => this.map.addMany(layers));
   }
 }
