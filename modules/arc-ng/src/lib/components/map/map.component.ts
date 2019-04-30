@@ -107,6 +107,8 @@ export class MapComponent extends EsriEventedBase<import ('esri/views/MapView')>
     this.__baseMap = value;
   }
 
+  @Input() layersReversed = true;
+
   @Output() mapBlur              = new EsriEventEmitter<__esri.MapViewBlurEvent>('blur');
   @Output() mapClick             = new EsriEventEmitter<__esri.MapViewClickEvent>('click');
   @Output() mapClickHit          = new EsriHitTestEmitter('click');
@@ -196,7 +198,7 @@ export class MapComponent extends EsriEventedBase<import ('esri/views/MapView')>
 
   private setupChildWatchers(): void {
     this.childLayers.changes.pipe(
-      map((layerComponents: LayerComponentBase<__esri.Layer>[]) => layerComponents.map(lc => lc.getInstance$()))
+      map((layerComponents: LayerComponentBase<__esri.Layer>[]) => layerComponents.map(lc => lc.getInstance$())),
     ).subscribe(layers => {
       this.map.layers.removeAll();
       this.watchLayerChanges(layers);
@@ -204,6 +206,9 @@ export class MapComponent extends EsriEventedBase<import ('esri/views/MapView')>
   }
 
   private watchLayerChanges(children: Observable<__esri.Layer>[]) {
-    combineLatest(children).pipe(take(1)).subscribe(layers => this.map.addMany(layers));
+    combineLatest(children).pipe(
+      take(1),
+      map(layers => this.layersReversed ? layers.reverse() : layers)
+    ).subscribe(layers => this.map.addMany(layers));
   }
 }

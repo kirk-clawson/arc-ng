@@ -5,6 +5,7 @@ import { LayerType } from '../../shared/enums';
 import { EsriEventEmitter } from '../../shared/esri-event-emitter';
 import { LayerComponentBase } from '../../shared/layer-component-base';
 import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
+import { MapComponent } from '../map/map.component';
 
 export interface GroupLayerViewEvent {
   view: __esri.View;
@@ -42,6 +43,10 @@ export class GroupLayerComponent extends LayerComponentBase<__esri.GroupLayer> i
 
   @ContentChildren(LayerComponentBase) children: QueryList<LayerComponentBase<__esri.Layer>>;
 
+  constructor(private mapRoot: MapComponent) {
+    super();
+  }
+
   async ngOnInit() {
     type modules = [typeof import ('esri/layers/GroupLayer')];
     const [ GroupLayer ] = await loadEsriModules<modules>(['esri/layers/GroupLayer']);
@@ -75,6 +80,9 @@ export class GroupLayerComponent extends LayerComponentBase<__esri.GroupLayer> i
   }
 
   private watchLayerChanges(children: Observable<__esri.Layer>[]) {
-    combineLatest(children).pipe(take(1)).subscribe(layers => this.instance.addMany(layers));
+    combineLatest(children).pipe(
+      take(1),
+      map(layers => this.mapRoot.layersReversed ? layers.reverse() : layers)
+    ).subscribe(layers => this.instance.addMany(layers));
   }
 }

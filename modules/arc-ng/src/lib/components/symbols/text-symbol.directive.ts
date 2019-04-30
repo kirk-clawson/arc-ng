@@ -99,6 +99,5 @@ export class TextSymbolDirective extends EsriComponentBase<EsriAutoCast<__esri.T
       size: this.__fontSize
     });
     this.instance = result;
-    console.log('Text Instance set');
   }
 }
