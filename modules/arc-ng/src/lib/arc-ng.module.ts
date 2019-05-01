@@ -1,15 +1,16 @@
 import { APP_INITIALIZER, InjectionToken, ModuleWithProviders, NgModule, Optional, SkipSelf } from '@angular/core';
 import * as esriLoader from 'esri-loader';
 import { ILoadScriptOptions } from 'esri-loader';
-import { MapComponent } from './components/map/map.component';
-import { BasemapGalleryDirective } from './components/widgets/basemap-gallery.directive';
-import { ExpandDirective } from './components/widgets/expand.directive';
 import { FeatureLayerComponent } from './components/layers/feature-layer.component';
-import { LayerListDirective } from './components/widgets/layer-list.directive';
+import { GeoJSONLayerComponent } from './components/layers/geojson-layer.component';
 import { GroupLayerComponent } from './components/layers/group-layer.component';
 import { LabelClassComponent } from './components/layers/support/label-class.component';
-import { TextSymbolDirective } from './components/symbols/text-symbol.directive';
+import { MapComponent } from './components/map/map.component';
 import { ActionDirective } from './components/support/action.directive';
+import { TextSymbolDirective } from './components/symbols/text-symbol.directive';
+import { BasemapGalleryDirective } from './components/widgets/basemap-gallery.directive';
+import { ExpandDirective } from './components/widgets/expand.directive';
+import { LayerListDirective } from './components/widgets/layer-list.directive';
 
 const loaderToken = new InjectionToken<ILoadScriptOptions>('ILoadScriptOptions');
 
@@ -26,14 +27,15 @@ export function init(config: ILoadScriptOptions) {
 
 const publicComponents = [
   MapComponent,
-  BasemapGalleryDirective,
   ExpandDirective,
-  FeatureLayerComponent,
+  BasemapGalleryDirective,
   LayerListDirective,
-  GroupLayerComponent,
   LabelClassComponent,
   TextSymbolDirective,
-  ActionDirective
+  ActionDirective,
+  GroupLayerComponent,
+  FeatureLayerComponent,
+  GeoJSONLayerComponent,
 ];
 
 @NgModule({

@@ -1,9 +1,9 @@
 /* tslint:disable:variable-name */
 import { Directive, Input, OnInit } from '@angular/core';
-import { AutoCastColor, EsriAutoCast } from '../../shared/type-utils';
+import { EsriComponentBase } from '../../shared/component-bases/esri-component-base';
 import { HorizontalAlignment, VerticalAlignment } from '../../shared/enums';
+import { AutoCastColor, EsriAutoCast } from '../../shared/type-utils';
 import { createCtorParameterObject, trimEmptyFields } from '../../shared/utils';
-import { EsriComponentBase } from '../../shared/esri-component-base';
 
 @Directive({
   selector: 'text-symbol'

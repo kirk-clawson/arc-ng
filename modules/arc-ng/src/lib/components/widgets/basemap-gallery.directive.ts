@@ -1,17 +1,17 @@
 import { Directive, forwardRef, Input, OnDestroy, OnInit, Optional, Output } from '@angular/core';
 import { take } from 'rxjs/operators';
-import { IconClass } from '../../shared/enums';
+import { WidgetBase } from '../../shared/component-bases/widget-base';
+import { IconClass } from '../../shared/esri-icons';
 import { EsriWatchEmitter } from '../../shared/esri-watch-emitter';
 import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
-import { WidgetComponentBase } from '../../shared/widget-component-base';
 import { MapComponent } from '../map/map.component';
 import { ExpandDirective } from './expand.directive';
 
 @Directive({
   selector: 'basemap-gallery',
-  providers: [{ provide: WidgetComponentBase, useExisting: forwardRef(() => BasemapGalleryDirective)}]
+  providers: [{ provide: WidgetBase, useExisting: forwardRef(() => BasemapGalleryDirective)}]
 })
-export class BasemapGalleryDirective extends WidgetComponentBase<__esri.BasemapGallery> implements OnInit, OnDestroy {
+export class BasemapGalleryDirective extends WidgetBase<__esri.BasemapGallery> implements OnInit, OnDestroy {
   @Input()
   set label(value: string) {
     this.setField('label', value);

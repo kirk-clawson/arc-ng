@@ -1,9 +1,9 @@
 /* tslint:disable:variable-name */
-import { EsriWatchEmitter } from './esri-watch-emitter';
-import { EsriEventEmitter } from './esri-event-emitter';
 import { EventEmitter } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { EsriAutoCast } from './type-utils';
+import { EsriEventEmitter } from '../esri-event-emitter';
+import { EsriWatchEmitter } from '../esri-watch-emitter';
+import { EsriAutoCast } from '../type-utils';
 
 export class EsriComponentBase<T> {
   get instance(): T {

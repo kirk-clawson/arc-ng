@@ -1,9 +1,9 @@
 /* tslint:disable:variable-name */
-import { UIPosition } from './enums';
 import { Input } from '@angular/core';
+import { UIPosition } from '../enums';
 import { EsriAccessorBase } from './esri-component-base';
 
-export abstract class WidgetComponentBase<T extends __esri.Widget> extends EsriAccessorBase<T> {
+export abstract class WidgetBase<T extends __esri.Widget> extends EsriAccessorBase<T> {
   @Input()
   set id(value: string) {
     this.setField('id', value);

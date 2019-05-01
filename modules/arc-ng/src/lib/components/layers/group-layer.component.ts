@@ -1,29 +1,20 @@
-import { AfterContentInit, Component, ContentChildren, forwardRef, Input, OnInit, Output, QueryList } from '@angular/core';
+import { AfterContentInit, Component, ContentChildren, forwardRef, Input, OnInit, QueryList } from '@angular/core';
 import { combineLatest, Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
+import { ActionDispatcherService } from '../../services/action-dispatcher.service';
+import { LayerBase } from '../../shared/component-bases/layer-base';
 import { LayerType } from '../../shared/enums';
-import { EsriEventEmitter } from '../../shared/esri-event-emitter';
-import { LayerComponentBase } from '../../shared/layer-component-base';
 import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
 import { MapComponent } from '../map/map.component';
-
-export interface GroupLayerViewEvent {
-  view: __esri.View;
-  layerView: __esri.LayerView;
-}
 
 export type groupVisibilityMode = 'independent' | 'inherited' | 'exclusive';
 
 @Component({
   selector: 'group-layer',
   template: '<ng-content></ng-content>',
-  providers: [{ provide: LayerComponentBase, useExisting: forwardRef(() => GroupLayerComponent)}]
+  providers: [{ provide: LayerBase, useExisting: forwardRef(() => GroupLayerComponent)}]
 })
-export class GroupLayerComponent extends LayerComponentBase<__esri.GroupLayer> implements OnInit, AfterContentInit {
-  @Input()
-  set title(value: string) {
-    this.setField('title', value);
-  }
+export class GroupLayerComponent extends LayerBase<__esri.GroupLayer, __esri.LayerView> implements OnInit, AfterContentInit {
   @Input()
   set portalId(value: string) {
     this.setAutoCastField('portalItem', { id: value }, true);
@@ -34,17 +25,14 @@ export class GroupLayerComponent extends LayerComponentBase<__esri.GroupLayer> i
     this.setField('visibilityMode', value);
   }
 
-  @Output() layerViewCreated = new EsriEventEmitter<GroupLayerViewEvent>('layerview-create');
-  @Output() layerViewDestroyed = new EsriEventEmitter<GroupLayerViewEvent>('layerview-destroyed');
-
   private portalSet = false;
 
   layerType: LayerType = LayerType.GroupLayer;
 
-  @ContentChildren(LayerComponentBase) children: QueryList<LayerComponentBase<__esri.Layer>>;
+  @ContentChildren(LayerBase) children: QueryList<LayerBase>;
 
-  constructor(private mapRoot: MapComponent) {
-    super();
+  constructor(private mapRoot: MapComponent, dispatcher: ActionDispatcherService) {
+    super(dispatcher);
   }
 
   async ngOnInit() {
@@ -66,13 +54,13 @@ export class GroupLayerComponent extends LayerComponentBase<__esri.GroupLayer> i
         throw new Error('A Group Layer may be loaded from a Portal Item, or have bespoke layers, but not both.');
       }
       this.watchLayerChanges(layers);
-      this.setupChildWatchers();
+      this.setupLayerWatch();
     });
   }
 
-  setupChildWatchers(): void {
+  setupLayerWatch(): void {
     this.children.changes.pipe(
-      map((layerComponents: LayerComponentBase<__esri.Layer>[]) => layerComponents.filter(lc => lc !== this).map(lc => lc.getInstance$()))
+      map((layerComponents: LayerBase[]) => layerComponents.filter(lc => lc !== this).map(lc => lc.getInstance$()))
     ).subscribe(layers => {
       this.instance.layers.removeAll();
       this.watchLayerChanges(layers);

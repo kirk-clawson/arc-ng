@@ -11,19 +11,11 @@ export class AppComponent {
   icons = IconClass;
   title = 'sample-app';
 
-  showBasemapGallery = true;
-
   onMapReady(event: __esri.MapView) {
     console.log('Map is Ready', event);
   }
 
-  onActionClick(actionNum: number) {
-    switch (actionNum) {
-      case 1:
-        this.showBasemapGallery = false;
-        break;
-      case 2:
-        this.showBasemapGallery = true;
-    }
+  onActionClick(actionNum?: number) {
+    console.log('action clicked', actionNum);
   }
 }

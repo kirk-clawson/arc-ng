@@ -20,3 +20,6 @@ export type AutoCastColor = e.Color | string | number[] | ColorRGBA;
 export function isExpandWidget(w: e.Widget): w is e.Expand {
   return w.declaredClass === 'esri.widgets.Expand';
 }
+
+export type FeatureishLayerTypes = e.FeatureLayer | e.GeoJSONLayer | e.CSVLayer;
+export type VisualLayerTypes = e.GraphicsLayer | FeatureishLayerTypes;

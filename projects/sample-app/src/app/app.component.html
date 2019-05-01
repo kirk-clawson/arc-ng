@@ -1,20 +1,16 @@
 <arcng-map class="map" baseMap="streets-navigation-vector" [zoom]="10" [center]="[-83.4255176, 42.432238]" (viewReady)="onMapReady($event)">
 
-  <basemap-gallery arcngExpand expandTooltip="Expand Basemap Gallery" expandGroup="top-right"
-                   [uiPosition]="uiPositions.TopRight" *ngIf="showBasemapGallery"></basemap-gallery>
-  <layer-list arcngExpand expandTooltip="Expand Layer List" expandGroup="top-right"
-              [uiPosition]="uiPositions.TopRight" [iconNumber]="2"></layer-list>
+  <basemap-gallery arcngExpand expandTooltip="Expand Basemap Gallery" expandGroup="top-right" [uiPosition]="uiPositions.TopRight"></basemap-gallery>
+  <layer-list arcngExpand expandTooltip="Expand Layer List" expandGroup="top-right" [uiPosition]="uiPositions.TopRight"></layer-list>
 
-  <group-layer title="Public Layers">
-    <group-layer title="Tornadoes">
-      <feature-layer url="https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/Tornado_Warnings/FeatureServer/0">
-        <label-class expression="$feature.STATUS">
-          <text-symbol [color]="[11, 127, 52, 1]" [haloColor]="[255, 255, 255, 0.75]" haloSize="1px" [fontSize]="12"></text-symbol>
-        </label-class>
-        <action (click)="onActionClick(1)" [className]="icons.BlankMapPin" title="Remove Basemap Gallery"></action>
-        <action (click)="onActionClick(2)" [className]="icons.Basemap" title="Add Basemap Gallery"></action>
-      </feature-layer>
-    </group-layer>
-    <feature-layer url="https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/USA_Counties/FeatureServer/0" [visible]="false"></feature-layer>
+  <group-layer title="Disasters">
+    <feature-layer url="https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/Tornado_Warnings/FeatureServer/0">
+      <label-class expression="$feature.STATUS">
+        <text-symbol [color]="[11, 127, 52, 1]" [haloColor]="[255, 255, 255, 0.75]" haloSize="1px" [fontSize]="12"></text-symbol>
+      </label-class>
+      <action (click)="onActionClick()" [className]="icons.Search" title="Click to log action"></action>
+    </feature-layer>
+    <geo-json-layer url="https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson" copyright="USGS Earthquakes" title="Earthquakes"></geo-json-layer>
   </group-layer>
+  <feature-layer url="https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/USA_Counties/FeatureServer/0" [visible]="false"></feature-layer>
 </arcng-map>

@@ -1,12 +1,9 @@
-import {
-  Directive,
-  Input, OnDestroy,
-  Output,
-} from '@angular/core';
-import { IconClass, WidgetMode } from '../../shared/enums';
-import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
+import { Directive, Input, OnDestroy, Output, } from '@angular/core';
+import { EsriAccessorBase } from '../../shared/component-bases/esri-component-base';
+import { WidgetMode } from '../../shared/enums';
+import { IconClass } from '../../shared/esri-icons';
 import { EsriWatchEmitter } from '../../shared/esri-watch-emitter';
-import { EsriAccessorBase } from '../../shared/esri-component-base';
+import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
 
 @Directive({
   selector: '[arcngExpand]'

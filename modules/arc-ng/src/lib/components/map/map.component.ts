@@ -14,13 +14,13 @@ import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
 import { combineLatest, Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { ActionDispatcherService } from '../../services/action-dispatcher.service';
+import { EsriEventedBase } from '../../shared/component-bases/esri-component-base';
+import { LayerBase } from '../../shared/component-bases/layer-base';
+import { WidgetBase } from '../../shared/component-bases/widget-base';
 import { UIPosition } from '../../shared/enums';
-import { EsriEventedBase } from '../../shared/esri-component-base';
 import { EsriEventEmitter, EsriHitTestEmitter } from '../../shared/esri-event-emitter';
-import { LayerComponentBase } from '../../shared/layer-component-base';
 import { isExpandWidget } from '../../shared/type-utils';
 import { createCtorParameterObject, isEmpty, loadEsriModules, trimEmptyFields } from '../../shared/utils';
-import { WidgetComponentBase } from '../../shared/widget-component-base';
 
 export type resizeAlign = 'center' | 'left' | 'right' | 'top' | 'bottom' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 export type baseMapNames = 'topo' | 'streets' | 'satellite' | 'hybrid' | 'dark-gray' | 'gray' | 'national-geographic' | 'oceans' |
@@ -146,8 +146,8 @@ export class MapComponent extends EsriEventedBase<import ('esri/views/MapView')>
   private map: import ('esri/Map');
 
   @ViewChild('mapContainer') mapContainer: ElementRef;
-  @ContentChildren(WidgetComponentBase) childWidgets: QueryList<WidgetComponentBase<__esri.Widget>>;
-  @ContentChildren(LayerComponentBase) childLayers: QueryList<LayerComponentBase<__esri.Layer>>;
+  @ContentChildren(WidgetBase) childWidgets: QueryList<WidgetBase<__esri.Widget>>;
+  @ContentChildren(LayerBase) childLayers: QueryList<LayerBase>;
 
   async ngOnInit() {
     try {
@@ -198,7 +198,7 @@ export class MapComponent extends EsriEventedBase<import ('esri/views/MapView')>
 
   private setupChildWatchers(): void {
     this.childLayers.changes.pipe(
-      map((layerComponents: LayerComponentBase<__esri.Layer>[]) => layerComponents.map(lc => lc.getInstance$())),
+      map((layerComponents: LayerBase[]) => layerComponents.map(lc => lc.getInstance$())),
     ).subscribe(layers => {
       this.map.layers.removeAll();
       this.watchLayerChanges(layers);

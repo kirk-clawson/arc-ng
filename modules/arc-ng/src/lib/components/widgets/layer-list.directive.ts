@@ -1,16 +1,16 @@
 import { Directive, forwardRef, OnDestroy, OnInit, Optional } from '@angular/core';
 import { take } from 'rxjs/operators';
 import { ActionDispatcherService } from '../../services/action-dispatcher.service';
+import { WidgetBase } from '../../shared/component-bases/widget-base';
 import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
-import { WidgetComponentBase } from '../../shared/widget-component-base';
 import { MapComponent } from '../map/map.component';
 import { ExpandDirective } from './expand.directive';
 
 @Directive({
   selector: 'layer-list',
-  providers: [{ provide: WidgetComponentBase, useExisting: forwardRef(() => LayerListDirective)}]
+  providers: [{ provide: WidgetBase, useExisting: forwardRef(() => LayerListDirective)}]
 })
-export class LayerListDirective extends WidgetComponentBase<__esri.LayerList> implements OnInit, OnDestroy {
+export class LayerListDirective extends WidgetBase<__esri.LayerList> implements OnInit, OnDestroy {
 
   private triggerHandle: IHandle;
 

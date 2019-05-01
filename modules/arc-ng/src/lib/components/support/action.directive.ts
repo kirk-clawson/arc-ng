@@ -1,9 +1,9 @@
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { ActionDispatcherService } from '../../services/action-dispatcher.service';
-import { Subject } from 'rxjs';
+import { IconClass } from '../../shared/esri-icons';
 import { getUuid, trimEmptyFields } from '../../shared/utils';
-import { IconClass } from '../../shared/enums';
 
 @Directive({
   selector: 'action'

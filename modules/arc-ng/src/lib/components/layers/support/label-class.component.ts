@@ -1,10 +1,10 @@
 import { AfterContentInit, Component, ContentChild, Input } from '@angular/core';
 import { take } from 'rxjs/operators';
-import { LayerComponentBase } from '../../../shared/layer-component-base';
+import { EsriAccessorBase } from '../../../shared/component-bases/esri-component-base';
+import { LayerBase } from '../../../shared/component-bases/layer-base';
 import { LayerType, PointLabelPlacement, PolygonPointPlacement, PolylineLabelPlacement } from '../../../shared/enums';
 import { createCtorParameterObject, loadEsriModules } from '../../../shared/utils';
 import { TextSymbolDirective } from '../../symbols/text-symbol.directive';
-import { EsriAccessorBase } from '../../../shared/esri-component-base';
 
 const DEFAULT_SYMBOL = {
   type: 'text',  // auto casts as new TextSymbol()
@@ -74,7 +74,7 @@ export class LabelClassComponent extends EsriAccessorBase<__esri.LabelClass> imp
     this.textDirective = value;
   }
 
-  constructor(parent: LayerComponentBase<__esri.Layer>) {
+  constructor(parent: LayerBase) {
     super();
     this.parentLayerType = parent.layerType;
   }

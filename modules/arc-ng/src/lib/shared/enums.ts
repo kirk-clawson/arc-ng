@@ -10,13 +10,6 @@ export enum UIPosition {
   Manual = 'manual'
 }
 
-export enum IconClass {
-  Basemap = 'esri-icon-basemap',
-  BlankMapPin = 'esri-icon-blank-map-pin',
-  Close = 'esri-icon-close',
-  DragHorizontal = 'esri-cons-drag-horizontal'
-}
-
 export enum WidgetMode {
   Auto = 'auto',
   Floating = 'floating',
@@ -66,7 +59,8 @@ export enum PolygonPointPlacement {
 export enum LayerType {
   GroupLayer,
   FeatureLayer,
-  MapImageLayer
+  MapImageLayer,
+  GeoJSONLayer
 }
 
 export enum HorizontalAlignment {
