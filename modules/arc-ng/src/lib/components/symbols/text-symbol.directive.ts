@@ -1,6 +1,7 @@
 /* tslint:disable:variable-name */
-import { Directive, Input, OnInit } from '@angular/core';
+import { Directive, EventEmitter, Input, OnInit } from '@angular/core';
 import { EsriComponentBase } from '../../shared/component-bases/esri-component-base';
+import { DependantChildComponent } from '../../shared/dependant-child-component';
 import { HorizontalAlignment, VerticalAlignment } from '../../shared/enums';
 import { AutoCastColor, EsriAutoCast } from '../../shared/type-utils';
 import { createCtorParameterObject, trimEmptyFields } from '../../shared/utils';
@@ -8,7 +9,7 @@ import { createCtorParameterObject, trimEmptyFields } from '../../shared/utils';
 @Directive({
   selector: 'text-symbol'
 })
-export class TextSymbolDirective extends EsriComponentBase<EsriAutoCast<__esri.TextSymbol>> implements OnInit {
+export class TextSymbolDirective extends EsriComponentBase<EsriAutoCast<__esri.TextSymbol>> implements DependantChildComponent, OnInit {
   @Input()
   set angle(value: number) {
     this.setField('angle', value);
@@ -34,8 +35,8 @@ export class TextSymbolDirective extends EsriComponentBase<EsriAutoCast<__esri.T
     this.setAutoCastField('haloColor', value);
   }
   @Input()
-  set haloSize(value: number) {
-    this.setField('haloSize', value);
+  set haloSize(value: number | string) {
+    this.setAutoCastField('haloSize', value);
   }
   @Input()
   set horizontalAlignment(value: HorizontalAlignment) {
@@ -89,6 +90,8 @@ export class TextSymbolDirective extends EsriComponentBase<EsriAutoCast<__esri.T
 
   // noinspection JSUnusedLocalSymbols
   private _type = 'text';
+
+  childChanged = new EventEmitter<void>();
 
   ngOnInit(): void {
     const result: any = createCtorParameterObject(this);

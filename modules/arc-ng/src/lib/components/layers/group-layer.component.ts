@@ -41,8 +41,7 @@ export class GroupLayerComponent extends LayerBase<__esri.GroupLayer, __esri.Lay
 
     const params = createCtorParameterObject<__esri.GroupLayerProperties>(this);
     this.instance = new GroupLayer(params);
-    this.configureEventEmitters();
-    this.configureWatchEmitters();
+    this.configureEsriEvents();
   }
 
   ngAfterContentInit() {

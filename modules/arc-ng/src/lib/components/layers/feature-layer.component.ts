@@ -82,8 +82,7 @@ export class FeatureLayerComponent
     const [ FeatureLayer ] = await loadEsriModules<modules>(['esri/layers/FeatureLayer']);
     const params = createCtorParameterObject<__esri.FeatureLayerProperties>(this);
     this.instance = new FeatureLayer(params);
-    this.configureEventEmitters();
-    this.configureWatchEmitters();
+    this.configureEsriEvents();
   }
 
   private updateFeatures(features: __esri.Graphic[]): void {

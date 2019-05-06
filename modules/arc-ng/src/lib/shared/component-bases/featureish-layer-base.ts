@@ -1,5 +1,5 @@
 import { AfterContentInit, ContentChildren, Input, QueryList } from '@angular/core';
-import { combineLatest, Observable } from 'rxjs';
+import { combineLatest, Observable, race } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { LabelClassComponent } from '../../components/layers/support/label-class.component';
 import { FeatureishLayerTypes } from '../type-utils';
@@ -34,28 +34,41 @@ export abstract class FeatureishLayerBase<T extends FeatureishLayerTypes, V exte
   }
 
   @ContentChildren(LabelClassComponent) labelingInfo: QueryList<LabelClassComponent>;
+  get labelsChanged$(): Observable<LabelClassComponent[]> {
+    const observables = [
+      ...this.labelingInfo.map(lc => lc.childChanged),
+      this.labelingInfo.changes
+    ];
+    return race(...observables).pipe(
+      map(() => this.labelingInfo.toArray()),
+      take(1),
+    );
+  }
 
   ngAfterContentInit() {
     this.getInstance$().pipe(
       take(1)
     ).subscribe(() => {
-      const labels = this.labelingInfo.map(lc => lc.getInstance$());
       if (this.instance.labelingInfo == null) this.instance.labelingInfo = [];
-      this.setupLabelInstances(labels);
+      this.setupLabelInstances(this.labelingInfo.toArray());
       this.setupLabelingWatcher();
     });
   }
 
   private setupLabelingWatcher(): void {
-    this.labelingInfo.changes.pipe(
-      map((labelComponents: LabelClassComponent[]) => labelComponents.map(lc => lc.getInstance$()))
-    ).subscribe(labels => {
+    this.labelsChanged$.subscribe(components => {
       this.instance.labelingInfo = [];
-      this.setupLabelInstances(labels);
+      this.setupLabelInstances(components);
+      this.setupLabelingWatcher();
     });
   }
 
-  private setupLabelInstances(children: Observable<__esri.LabelClass>[]): void {
-    combineLatest(children).pipe(take(1)).subscribe(labels => this.instance.labelingInfo.push(...labels));
+  private setupLabelInstances(childComponents: LabelClassComponent[]): void {
+    const children = childComponents.map(lc => lc.getInstance$());
+    combineLatest(children).pipe(
+      take(1)
+    ).subscribe(labels => {
+      this.instance.labelingInfo.push(...labels);
+    });
   }
 }

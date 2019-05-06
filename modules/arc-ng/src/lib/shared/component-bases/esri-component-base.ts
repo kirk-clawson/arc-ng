@@ -1,9 +1,8 @@
 /* tslint:disable:variable-name */
 import { EventEmitter } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { EsriEventEmitter } from '../esri-event-emitter';
-import { EsriWatchEmitter } from '../esri-watch-emitter';
-import { EsriAutoCast } from '../type-utils';
+import { EsriEmitterBase } from '../esri-emitter-base';
+import { EsriAutoCast, isDependantChild } from '../type-utils';
 
 export class EsriComponentBase<T> {
   get instance(): T {
@@ -25,11 +24,20 @@ export class EsriComponentBase<T> {
     }
   }
 
+  replaceInstance(newInstance: T) {
+    this.__instance = newInstance;
+  }
+
   protected setField<K extends keyof T>(fieldName: K, value: T[K]): void {
     const localField = '_' + fieldName;
     if (this[localField] !== value) {
       this[localField] = value;
-      if (this.__instance != null) this.__instance[fieldName] = value;
+      if (this.__instance != null) {
+        this.__instance[fieldName] = value;
+        if (isDependantChild(this)) {
+          this.childChanged.emit();
+        }
+      }
     }
   }
 
@@ -40,27 +48,21 @@ export class EsriComponentBase<T> {
     if (this[localField] !== value) {
       this[localField] = value;
       if (this.__instance != null) {
-        if (constructionOnly === true) throw new Error(`'${fieldName} cannot be set after the object ahs been constructed`);
-        this.__instance[fieldName] = value as any;
+        if (constructionOnly === true) throw new Error(`'${fieldName} cannot be set after the object has been constructed`);
+        this.__instance[fieldName] = value;
+        if (isDependantChild(this)) {
+          this.childChanged.emit();
+        }
       }
     }
   }
 }
 
-export class EsriAccessorBase<T extends __esri.Accessor> extends EsriComponentBase<T> {
-  protected configureWatchEmitters(): void {
+export type EsriEventedTypes = __esri.Accessor | (__esri.Accessor & __esri.Evented) | __esri.MapView;
+export class EsriEventedBase<T extends EsriEventedTypes> extends EsriComponentBase<T> {
+  protected configureEsriEvents(): void {
     Object.values(this).forEach(v => {
-      if (v instanceof EsriWatchEmitter) {
-        v.init(this.instance);
-      }
-    });
-  }
-}
-
-export abstract class EsriEventedBase<T extends __esri.Evented & __esri.Accessor> extends EsriAccessorBase<T> {
-  protected configureEventEmitters(): void {
-    Object.values(this).forEach(v => {
-      if (v instanceof EsriEventEmitter) {
+      if (v instanceof EsriEmitterBase) {
         v.init(this.instance);
       }
     });

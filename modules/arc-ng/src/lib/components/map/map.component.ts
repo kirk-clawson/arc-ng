@@ -18,7 +18,7 @@ import { EsriEventedBase } from '../../shared/component-bases/esri-component-bas
 import { LayerBase } from '../../shared/component-bases/layer-base';
 import { WidgetBase } from '../../shared/component-bases/widget-base';
 import { UIPosition } from '../../shared/enums';
-import { EsriEventEmitter, EsriHitTestEmitter } from '../../shared/esri-event-emitter';
+import { EsriEventEmitter, EsriHitTestEmitter } from '../../shared/esri-emitters';
 import { isExpandWidget } from '../../shared/type-utils';
 import { createCtorParameterObject, isEmpty, loadEsriModules, trimEmptyFields } from '../../shared/utils';
 
@@ -158,8 +158,7 @@ export class MapComponent extends EsriEventedBase<import ('esri/views/MapView')>
       this.map = isEmpty(mapParams) ? new Map() : new Map(mapParams);
       const viewParams = this.createConstructorParameters();
       this.instance = isEmpty(viewParams) ? new MapView() : new MapView(viewParams);
-      this.configureEventEmitters();
-      this.configureWatchEmitters();
+      this.configureEsriEvents();
 
       await this.instance.when();
       this.viewReady.emit(this.instance);

@@ -34,7 +34,6 @@ export class GeoJSONLayerComponent
     const [ GeoJsonLayer ] = await loadEsriModules<modules>(['esri/layers/GeoJSONLayer']);
     const params = createCtorParameterObject<__esri.FeatureLayerProperties>(this);
     this.instance = new GeoJsonLayer(params);
-    this.configureEventEmitters();
-    this.configureWatchEmitters();
+    this.configureEsriEvents();
   }
 }

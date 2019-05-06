@@ -1,14 +1,14 @@
 import { Directive, Input, OnDestroy, Output, } from '@angular/core';
-import { EsriAccessorBase } from '../../shared/component-bases/esri-component-base';
+import { EsriEventedBase } from '../../shared/component-bases/esri-component-base';
 import { WidgetMode } from '../../shared/enums';
+import { EsriWatchEmitter } from '../../shared/esri-emitters';
 import { IconClass } from '../../shared/esri-icons';
-import { EsriWatchEmitter } from '../../shared/esri-watch-emitter';
 import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
 
 @Directive({
   selector: '[arcngExpand]'
 })
-export class ExpandDirective extends EsriAccessorBase<__esri.Expand> implements OnDestroy {
+export class ExpandDirective extends EsriEventedBase<__esri.Expand> implements OnDestroy {
   @Input()
   set autoCollapse(value: boolean) {
     this.setField('autoCollapse', value);
@@ -68,7 +68,7 @@ export class ExpandDirective extends EsriAccessorBase<__esri.Expand> implements 
     params.id = `${content.id}-expander`;
     if (container != null) params.container = container;
     this.instance = new Expand(params);
-    this.configureWatchEmitters();
+    this.configureEsriEvents();
   }
 
   private handleStateChange(isExpanded: boolean): void {

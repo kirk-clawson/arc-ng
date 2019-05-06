@@ -1,9 +1,9 @@
 import { EventEmitter } from '@angular/core';
 
-export class EsriWatchEmitter<T> extends EventEmitter<T> {
-  protected handle: __esri.WatchHandle;
+export abstract class EsriEmitterBase<T, U> extends EventEmitter<T> {
+  protected handle: IHandle;
 
-  constructor(protected esriFieldName: string, isAsync?: boolean) {
+  protected constructor(protected esriEventName: string, isAsync?: boolean) {
     super(isAsync);
   }
 
@@ -12,12 +12,7 @@ export class EsriWatchEmitter<T> extends EventEmitter<T> {
     this.handle = null;
   }
 
-  init(source: __esri.Accessor) {
-    if (this.observers.length > 0) {
-      this.handleCleanup();
-      this.handle = source.watch(this.esriFieldName, newValue => this.emit(newValue));
-    }
-  }
+  abstract init(source: U);
 
   error(err: any): void {
     this.handleCleanup();

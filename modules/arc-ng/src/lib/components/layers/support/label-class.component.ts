@@ -1,7 +1,8 @@
-import { AfterContentInit, Component, ContentChild, Input } from '@angular/core';
+import { AfterContentInit, Component, ContentChild, EventEmitter, Input } from '@angular/core';
 import { take } from 'rxjs/operators';
-import { EsriAccessorBase } from '../../../shared/component-bases/esri-component-base';
+import { EsriEventedBase } from '../../../shared/component-bases/esri-component-base';
 import { LayerBase } from '../../../shared/component-bases/layer-base';
+import { DependantChildComponent } from '../../../shared/dependant-child-component';
 import { LayerType, PointLabelPlacement, PolygonPointPlacement, PolylineLabelPlacement } from '../../../shared/enums';
 import { createCtorParameterObject, loadEsriModules } from '../../../shared/utils';
 import { TextSymbolDirective } from '../../symbols/text-symbol.directive';
@@ -24,12 +25,13 @@ const DEFAULT_SYMBOL = {
   selector: 'label-class',
   template: '<ng-content></ng-content>'
 })
-export class LabelClassComponent extends EsriAccessorBase<__esri.LabelClass> implements AfterContentInit {
+export class LabelClassComponent extends EsriEventedBase<__esri.LabelClass> implements AfterContentInit, DependantChildComponent {
   @Input()
   set expression(value: string) {
     if (this.__expression !== value) {
       this.__expression = value;
       switch (this.parentLayerType) {
+        case LayerType.GeoJSONLayer:
         case LayerType.FeatureLayer:
           this.setField('labelExpressionInfo', { expression: value });
           break;
@@ -69,6 +71,8 @@ export class LabelClassComponent extends EsriAccessorBase<__esri.LabelClass> imp
   private textDirective: TextSymbolDirective;
   private readonly parentLayerType: LayerType;
 
+  childChanged = new EventEmitter<void>();
+
   @ContentChild(TextSymbolDirective)
   set textChild(value: TextSymbolDirective) {
     this.textDirective = value;
@@ -88,6 +92,8 @@ export class LabelClassComponent extends EsriAccessorBase<__esri.LabelClass> imp
       const params = createCtorParameterObject<__esri.LabelClassProperties>(this);
       params.symbol = this.textDirective.instance || DEFAULT_SYMBOL;
       this.instance = new LabelClass(params);
+      this.textDirective.replaceInstance(this.instance.symbol);
+      this.textDirective.childChanged.subscribe(() => this.childChanged.emit());
     });
   }
 }

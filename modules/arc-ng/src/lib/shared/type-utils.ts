@@ -1,4 +1,6 @@
 import e = __esri;
+import { EventEmitter } from '@angular/core';
+import { DependantChildComponent, EsriCloneable } from './dependant-child-component';
 
 /* tslint:disable:no-shadowed-variable */
 
@@ -19,6 +21,14 @@ export type AutoCastColor = e.Color | string | number[] | ColorRGBA;
 
 export function isExpandWidget(w: e.Widget): w is e.Expand {
   return w.declaredClass === 'esri.widgets.Expand';
+}
+
+export function isDependantChild(c: any): c is DependantChildComponent {
+  return c.hasOwnProperty('childChanged') && c.childChanged instanceof EventEmitter;
+}
+
+export function isCloneable<T extends any>(c: any): c is EsriCloneable<T> {
+  return c.clone != null && typeof c.clone === 'function';
 }
 
 export type FeatureishLayerTypes = e.FeatureLayer | e.GeoJSONLayer | e.CSVLayer;

@@ -6,9 +6,9 @@
   <group-layer title="Disasters">
     <feature-layer url="https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/Tornado_Warnings/FeatureServer/0">
       <label-class expression="$feature.STATUS">
-        <text-symbol [color]="[11, 127, 52, 1]" [haloColor]="[255, 255, 255, 0.75]" haloSize="1px" [fontSize]="12"></text-symbol>
+        <text-symbol [color]="[11, 127, 52, 1]" [haloColor]="[255, 255, 255, 0.75]" [haloSize]="haloSize" [fontSize]="12"></text-symbol>
       </label-class>
-      <action (click)="onActionClick()" [className]="icons.Search" title="Click to log action"></action>
+      <action (click)="onActionClick()" [className]="icons.Search" title="Change halo size"></action>
     </feature-layer>
     <geo-json-layer url="https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson" copyright="USGS Earthquakes" title="Earthquakes"></geo-json-layer>
   </group-layer>

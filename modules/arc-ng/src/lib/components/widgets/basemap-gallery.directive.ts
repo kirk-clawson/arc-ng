@@ -1,8 +1,8 @@
 import { Directive, forwardRef, Input, OnDestroy, OnInit, Optional, Output } from '@angular/core';
 import { take } from 'rxjs/operators';
 import { WidgetBase } from '../../shared/component-bases/widget-base';
+import { EsriWatchEmitter } from '../../shared/esri-emitters';
 import { IconClass } from '../../shared/esri-icons';
-import { EsriWatchEmitter } from '../../shared/esri-watch-emitter';
 import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
 import { MapComponent } from '../map/map.component';
 import { ExpandDirective } from './expand.directive';
@@ -45,7 +45,7 @@ export class BasemapGalleryDirective extends WidgetBase<__esri.BasemapGallery> i
       const params = createCtorParameterObject<__esri.BasemapGalleryProperties>(this);
       params.view = view;
       this.instance = new BaseMapGallery(params);
-      this.configureWatchEmitters();
+      this.configureEsriEvents();
       if (this.expander != null) {
         await this.expander.createInstance(view, this.instance, localContainer);
         this.parent.attachWidget(this.expander.instance, this.__uiPosition);

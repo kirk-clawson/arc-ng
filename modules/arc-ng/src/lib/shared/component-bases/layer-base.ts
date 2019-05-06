@@ -4,7 +4,7 @@ import { filter, takeUntil } from 'rxjs/operators';
 import { ActionDirective } from '../../components/support/action.directive';
 import { ActionDispatcherService } from '../../services/action-dispatcher.service';
 import { LayerType, ListMode } from '../enums';
-import { EsriEventEmitter } from '../esri-event-emitter';
+import { EsriEventEmitter } from '../esri-emitters';
 import { groupBy } from '../utils';
 import { EsriEventedBase } from './esri-component-base';
 
