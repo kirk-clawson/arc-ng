@@ -19,8 +19,23 @@ export type EsriAutoCast<T> =
 export interface ColorRGBA { r: number; g: number; b: number; a?: number; }
 export type AutoCastColor = e.Color | string | number[] | ColorRGBA;
 
+function isAccessor(a: any): a is e.Accessor {
+  return a.hasOwnProperty('declaredClass') &&
+    a.declaredClass != null &&
+    typeof a.declaredClass === 'string' &&
+    a.declaredClass.startsWith('esri');
+}
+
 export function isExpandWidget(w: e.Widget): w is e.Expand {
   return w.declaredClass === 'esri.widgets.Expand';
+}
+
+export function isBasemap(b: any): b is e.Basemap {
+  return isAccessor(b) && b.declaredClass === 'esri.Basemap';
+}
+
+export function isBasemapArray(b: any[]): b is e.Basemap[] {
+  return isBasemap(b[0]);
 }
 
 export function isDependantChild(c: any): c is DependantChildComponent {
