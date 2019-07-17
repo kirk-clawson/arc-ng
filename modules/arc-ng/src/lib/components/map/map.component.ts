@@ -19,7 +19,7 @@ import { WidgetBase } from '../../shared/component-bases/widget-base';
 import { UIPosition } from '../../shared/enums';
 import { EsriEventEmitter, EsriHitTestEmitter } from '../../shared/esri-emitters';
 import { isExpandWidget } from '../../shared/type-utils';
-import { createCtorParameterObject, isEmpty, loadEsriModules, trimEmptyFields } from '../../shared/utils';
+import { isEmpty, loadEsriModules, trimEmptyFields } from '../../shared/utils';
 
 export type resizeAlign = 'center' | 'left' | 'right' | 'top' | 'bottom' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 export type baseMapNames = 'topo' | 'streets' | 'satellite' | 'hybrid' | 'dark-gray' | 'gray' | 'national-geographic' | 'oceans' |
@@ -35,50 +35,74 @@ export type baseMapNames = 'topo' | 'streets' | 'satellite' | 'hybrid' | 'dark-g
     ActionDispatcherService,
   ]
 })
-export class MapComponent extends EsriEventedBase<import ('esri/views/MapView')> implements OnInit, AfterContentInit {
+export class MapComponent
+  extends EsriEventedBase<import ('esri/views/MapView'), __esri.MapViewProperties>
+  implements OnInit, AfterContentInit {
+
   @Input()
   set zoom(value: number) {
-    this.setField('zoom', value);
+    this.initOrChangeField('zoom', value);
   }
 
   @Input()
   set viewpoint(value: __esri.ViewpointProperties) {
-    this.setAutoCastField('viewpoint', value, true);
+    if (this.instance == null) {
+      this.initializeField('viewpoint', value);
+    } else {
+      type ModuleTypes = [ typeof import ('esri/Viewpoint') ];
+      loadEsriModules<ModuleTypes>(['esri/Viewpoint']).then(([Viewpoint]) => {
+        this.changeField('viewpoint', new Viewpoint(value));
+      });
+    }
   }
 
   @Input()
   set spatialReference(value: __esri.SpatialReferenceProperties) {
-    this.setAutoCastField('spatialReference', value);
+    if (this.instance == null) {
+      this.initializeField('spatialReference', value);
+    } else {
+      type ModuleTypes = [ typeof import ('esri/geometry/SpatialReference') ];
+      loadEsriModules<ModuleTypes>(['esri/geometry/SpatialReference']).then(([SpatialReference]) => {
+        this.changeField('spatialReference', new SpatialReference(value));
+      });
+    }
   }
 
   @Input()
   set scale(value: number) {
-    this.setField('scale', value);
+    this.initOrChangeField('scale', value);
   }
 
   @Input()
   set rotation(value: number) {
-    this.setField('rotation', value);
+    this.initOrChangeField('rotation', value);
   }
 
   @Input()
   set resizeAlign(value: resizeAlign) {
-    this.setField('resizeAlign', value);
+    this.initOrChangeField('resizeAlign', value);
   }
 
   @Input()
   set popup(value: __esri.PopupProperties) {
-    this.setAutoCastField('popup', value);
+    if (this.instance == null) {
+      this.initializeField('popup', value);
+    } else {
+      type ModuleTypes = [ typeof import ('esri/widgets/Popup') ];
+      loadEsriModules<ModuleTypes>(['esri/widgets/Popup']).then(([Popup]) => {
+        this.changeField('popup', new Popup(value));
+      });
+    }
   }
 
   @Input()
   set padding(value: __esri.ViewPadding) {
-    this.setField('padding', value);
+    this.initOrChangeField('padding', value);
   }
 
   @Input()
-  set highlightOptions(value: __esri.MapViewHighlightOptions) {
-    this.setField('highlightOptions', value);
+  set highlightOptions(value: __esri.MapViewHighlightOptionsProperties) {
+    this.initOrChangeField('highlightOptions', value);
   }
 
   @Input()
@@ -88,7 +112,7 @@ export class MapComponent extends EsriEventedBase<import ('esri/views/MapView')>
 
   @Input()
   set constraints(value: __esri.MapViewConstraints) {
-    this.setField('constraints', value);
+    this.initOrChangeField('constraints', value);
   }
 
   @Input()
@@ -98,12 +122,12 @@ export class MapComponent extends EsriEventedBase<import ('esri/views/MapView')>
 
   @Input()
   set breakpoints(value: __esri.BreakpointsOwnerBreakpoints) {
-    this.setField('breakpoints', value);
+    this.initOrChangeField('breakpoints', value);
   }
 
   @Input()
   set baseMap(value: __esri.Basemap | baseMapNames) {
-    this.__baseMap = value;
+    this._baseMap = value;
   }
 
   @Input() layersReversed = true;
@@ -140,8 +164,7 @@ export class MapComponent extends EsriEventedBase<import ('esri/views/MapView')>
 
   @Output() viewReady            = new EventEmitter<__esri.MapView>();
 
-  // tslint:disable-next-line:variable-name
-  private __baseMap: __esri.Basemap | baseMapNames;
+  private _baseMap: __esri.Basemap | baseMapNames;
   private map: import ('esri/Map');
 
   @ViewChild('mapContainer', { static: true }) mapContainer: ElementRef;
@@ -153,9 +176,11 @@ export class MapComponent extends EsriEventedBase<import ('esri/views/MapView')>
       type ModuleTypes = [ typeof import ('esri/Map'), typeof import ('esri/views/MapView')];
       const [Map, MapView] = await loadEsriModules<ModuleTypes>(['esri/Map', 'esri/views/MapView']);
 
-      const mapParams = trimEmptyFields({ basemap: this.__baseMap });
+      const mapParams = trimEmptyFields({ basemap: this._baseMap });
       this.map = isEmpty(mapParams) ? new Map() : new Map(mapParams);
-      const viewParams = this.createConstructorParameters();
+      const viewParams = this.initializer;
+      viewParams.map = this.map;
+      viewParams.container = this.mapContainer.nativeElement;
       this.instance = isEmpty(viewParams) ? new MapView() : new MapView(viewParams);
       this.configureEsriEvents();
 
@@ -185,13 +210,6 @@ export class MapComponent extends EsriEventedBase<import ('esri/views/MapView')>
 
   detachWidget(widget: __esri.Widget) {
     this.instance.ui.remove(widget);
-  }
-
-  private createConstructorParameters(): __esri.MapViewProperties {
-    const result = createCtorParameterObject<__esri.MapViewProperties>(this);
-    result.map = this.map;
-    result.container = this.mapContainer.nativeElement;
-    return result;
   }
 
   private setupChildWatchers(): void {

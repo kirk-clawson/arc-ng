@@ -11,35 +11,35 @@ import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
 export class ExpandDirective extends EsriEventedBase<__esri.Expand> implements OnDestroy {
   @Input()
   set autoCollapse(value: boolean) {
-    this.setField('autoCollapse', value);
+    this.changeField('autoCollapse', value);
   }
   @Input()
   set collapseIconClass(value: IconClass) {
-    this.setField('collapseIconClass', value);
+    this.changeField('collapseIconClass', value);
   }
   @Input()
   set collapseTooltip(value: string) {
-    this.setField('collapseTooltip', value);
+    this.changeField('collapseTooltip', value);
   }
   @Input()
   set expandIconClass(value: IconClass) {
-    this.setField('expandIconClass', value);
+    this.changeField('expandIconClass', value);
   }
   @Input()
   set expandTooltip(value: string) {
-    this.setField('expandTooltip', value);
+    this.changeField('expandTooltip', value);
   }
   @Input()
   set expandGroup(value: string) {
-    this.setField('group', value);
+    this.changeField('group', value);
   }
   @Input()
   set iconNumber(value: number) {
-    this.setField('iconNumber', value);
+    this.changeField('iconNumber', value);
   }
   @Input()
   set expandMode(value: WidgetMode) {
-    this.setField('mode', value);
+    this.changeField('mode', value);
   }
   @Input()
   set expanded(value: boolean) {

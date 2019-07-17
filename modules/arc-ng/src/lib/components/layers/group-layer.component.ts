@@ -22,7 +22,7 @@ export class GroupLayerComponent extends LayerBase<__esri.GroupLayer, __esri.Lay
   }
   @Input()
   set visibilityMode(value: groupVisibilityMode) {
-    this.setField('visibilityMode', value);
+    this.changeField('visibilityMode', value);
   }
 
   private portalSet = false;

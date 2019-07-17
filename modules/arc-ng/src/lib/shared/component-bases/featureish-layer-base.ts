@@ -10,27 +10,27 @@ export abstract class FeatureishLayerBase<T extends FeatureishLayerTypes, V exte
   implements AfterContentInit {
   @Input()
   set copyright(value: string) {
-    this.setField('copyright', value);
+    this.changeField('copyright', value);
   }
   @Input()
   set definitionExpression(value: string) {
-    this.setField('definitionExpression', value);
+    this.changeField('definitionExpression', value);
   }
   @Input()
   set labelsVisible(value: boolean) {
-    this.setField('labelsVisible', value);
+    this.changeField('labelsVisible', value);
   }
   @Input()
   set objectIdField(value: string) {
-    this.setField('objectIdField', value);
+    this.changeField('objectIdField', value);
   }
   @Input()
   set popupEnabled(value: boolean) {
-    this.setField('popupEnabled', value);
+    this.changeField('popupEnabled', value);
   }
   @Input()
   set spatialReference(value: __esri.SpatialReference) {
-    this.setField('spatialReference', value);
+    this.changeField('spatialReference', value);
   }
 
   @ContentChildren(LabelClassComponent) labelingInfo: QueryList<LabelClassComponent>;

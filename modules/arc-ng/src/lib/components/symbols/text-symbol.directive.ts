@@ -12,7 +12,7 @@ import { createCtorParameterObject, trimEmptyFields } from '../../shared/utils';
 export class TextSymbolDirective extends EsriComponentBase<EsriAutoCast<__esri.TextSymbol>> implements DependantChildComponent, OnInit {
   @Input()
   set angle(value: number) {
-    this.setField('angle', value);
+    this.changeField('angle', value);
   }
   @Input()
   set backgroundColor(value: AutoCastColor) {
@@ -24,7 +24,7 @@ export class TextSymbolDirective extends EsriComponentBase<EsriAutoCast<__esri.T
   }
   @Input()
   set borderLineSize(value: number) {
-    this.setField('borderLineSize', value);
+    this.changeField('borderLineSize', value);
   }
   @Input()
   set color(value: AutoCastColor) {
@@ -40,23 +40,23 @@ export class TextSymbolDirective extends EsriComponentBase<EsriAutoCast<__esri.T
   }
   @Input()
   set horizontalAlignment(value: HorizontalAlignment) {
-    this.setField('horizontalAlignment', value);
+    this.changeField('horizontalAlignment', value);
   }
   @Input()
   set kerning(value: boolean) {
-    this.setField('kerning', value);
+    this.changeField('kerning', value);
   }
   @Input()
   set rotated(value: boolean) {
-    this.setField('rotated', value);
+    this.changeField('rotated', value);
   }
   @Input()
   set text(value: string) {
-    this.setField('text', value);
+    this.changeField('text', value);
   }
   @Input()
   set verticalAlignment(value: VerticalAlignment) {
-    this.setField('verticalAlignment', value);
+    this.changeField('verticalAlignment', value);
   }
   @Input()
   set xOffset(value: number | string) {

@@ -15,15 +15,15 @@ import { isBasemapArray } from '../../shared/type-utils';
 export class BasemapGalleryDirective extends WidgetBase<__esri.BasemapGallery> implements OnInit, OnDestroy {
   @Input()
   set label(value: string) {
-    this.setField('label', value);
+    this.changeField('label', value);
   }
   @Input()
   set iconClass(value: IconClass) {
-    this.setField('iconClass', value);
+    this.changeField('iconClass', value);
   }
   @Input()
   set activeBasemap(value: __esri.Basemap) {
-    this.setField('activeBasemap', value);
+    this.changeField('activeBasemap', value);
   }
   @Input()
   set Basemaps(value: string | string[] | __esri.Basemap[]) {

@@ -33,25 +33,25 @@ export class LabelClassComponent extends EsriEventedBase<__esri.LabelClass> impl
       switch (this.parentLayerType) {
         case LayerType.GeoJSONLayer:
         case LayerType.FeatureLayer:
-          this.setField('labelExpressionInfo', { expression: value });
+          this.changeField('labelExpressionInfo', { expression: value });
           break;
         case LayerType.MapImageLayer:
-          this.setField('labelExpression', value);
+          this.changeField('labelExpression', value);
           break;
       }
     }
   }
   @Input()
   set labelPlacement(value: PointLabelPlacement | PolylineLabelPlacement | PolygonPointPlacement) {
-    this.setField('labelPlacement', value);
+    this.changeField('labelPlacement', value);
   }
   @Input()
   set maxScale(value: number) {
-    this.setField('maxScale', value);
+    this.changeField('maxScale', value);
   }
   @Input()
   set minScale(value: number) {
-    this.setField('minScale', value);
+    this.changeField('minScale', value);
   }
   @Input()
   set symbol(value: __esri.TextSymbolProperties | __esri.LabelSymbol3DProperties) {
@@ -59,11 +59,11 @@ export class LabelClassComponent extends EsriEventedBase<__esri.LabelClass> impl
   }
   @Input()
   set useCodedValues(value: boolean) {
-    this.setField('useCodedValues', value);
+    this.changeField('useCodedValues', value);
   }
   @Input()
   set where(value: string) {
-    this.setField('where', value);
+    this.changeField('where', value);
   }
 
   // tslint:disable-next-line:variable-name

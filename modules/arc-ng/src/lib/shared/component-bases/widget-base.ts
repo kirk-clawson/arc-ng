@@ -6,11 +6,11 @@ import { EsriEventedBase } from './esri-component-base';
 export abstract class WidgetBase<T extends __esri.Widget> extends EsriEventedBase<T> {
   @Input()
   set id(value: string) {
-    this.setField('id', value);
+    this.changeField('id', value);
   }
   @Input()
   set container(value: string | HTMLElement) {
-    this.setField('container', value);
+    this.changeField('container', value);
   }
   @Input()
   set uiPosition(value: UIPosition) {

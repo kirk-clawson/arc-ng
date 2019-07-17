@@ -16,16 +16,16 @@ export class FeatureLayerComponent
 
   @Input()
   set layerId(value: number) {
-    this.setField('layerId', value);
+    this.changeField('layerId', value);
   }
   @Input()
   set legendEnabled(value: boolean) {
-    this.setField('legendEnabled', value);
+    this.changeField('legendEnabled', value);
   }
   @Input()
   set outFields(value: string | string[]) {
     const items = Array.isArray(value) ? value : value.split(',');
-    this.setField('outFields', items);
+    this.changeField('outFields', items);
   }
   @Input()
   set portalId(value: string) {
@@ -37,7 +37,7 @@ export class FeatureLayerComponent
   }
   @Input()
   set refreshInterval(value: number) {
-    this.setField('refreshInterval', value);
+    this.changeField('refreshInterval', value);
   }
   @Input()
   set source(value: __esri.Graphic[]) {

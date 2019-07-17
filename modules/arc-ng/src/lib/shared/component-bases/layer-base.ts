@@ -17,23 +17,23 @@ export abstract class LayerBase<T extends __esri.Layer = __esri.Layer, V extends
   extends EsriEventedBase<T> implements OnDestroy {
   @Input()
   set id(value: string) {
-    this.setField('id', value);
+    this.changeField('id', value);
   }
   @Input()
   set listMode(value: ListMode) {
-    this.setField('listMode', value);
+    this.changeField('listMode', value);
   }
   @Input()
   set opacity(value: number) {
-    this.setField('opacity', value);
+    this.changeField('opacity', value);
   }
   @Input()
   set title(value: string) {
-    this.setField('title', value);
+    this.changeField('title', value);
   }
   @Input()
   set visible(value: boolean) {
-    this.setField('visible', value);
+    this.changeField('visible', value);
   }
 
   @Output() layerViewCreated = new EsriEventEmitter<LayerViewEvent<V>>('layerview-create');

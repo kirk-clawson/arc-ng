@@ -16,11 +16,11 @@ export class GeoJSONLayerComponent
 
   @Input()
   set legendEnabled(value: boolean) {
-    this.setField('legendEnabled', value);
+    this.changeField('legendEnabled', value);
   }
   @Input()
   set url(value: string) {
-    this.setField('url', value);
+    this.changeField('url', value);
   }
 
   layerType: LayerType = LayerType.GeoJSONLayer;

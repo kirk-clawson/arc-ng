@@ -6,15 +6,15 @@ export function loadEsriModules<T extends any[]>(modules: string[], loadScriptOp
   return loadModules(modules, loadScriptOptions) as Promise<T>;
 }
 
-export function createCtorParameterObject<T extends {}>(component: {}): Partial<T> {
-  const result: T = {} as T;
-  Object.keys(component).forEach(k => {
-    if (k.startsWith('_') && !k.startsWith('__')) {
-      result[k.substring(1)] = component[k];
-    }
-  });
-  return trimEmptyFields(result);
-}
+// export function createCtorParameterObject<T extends {}>(component: {}): Partial<T> {
+//   const result: T = {} as T;
+//   Object.keys(component).forEach(k => {
+//     if (k.startsWith('_') && !k.startsWith('__')) {
+//       result[k.substring(1)] = component[k];
+//     }
+//   });
+//   return trimEmptyFields(result);
+// }
 
 export function trimEmptyFields<T>(item: T, undefinedOnly: boolean = true): Partial<T> {
   Object.keys(item).forEach(k => {
