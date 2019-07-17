@@ -5,12 +5,11 @@ import {
   ContentChildren,
   ElementRef,
   EventEmitter,
-  Input,
+  Input, OnInit,
   Output,
   QueryList,
   ViewChild,
 } from '@angular/core';
-import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
 import { combineLatest, Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { ActionDispatcherService } from '../../services/action-dispatcher.service';
@@ -145,7 +144,7 @@ export class MapComponent extends EsriEventedBase<import ('esri/views/MapView')>
   private __baseMap: __esri.Basemap | baseMapNames;
   private map: import ('esri/Map');
 
-  @ViewChild('mapContainer') mapContainer: ElementRef;
+  @ViewChild('mapContainer', { static: true }) mapContainer: ElementRef;
   @ContentChildren(WidgetBase) childWidgets: QueryList<WidgetBase<__esri.Widget>>;
   @ContentChildren(LayerBase) childLayers: QueryList<LayerBase>;
 

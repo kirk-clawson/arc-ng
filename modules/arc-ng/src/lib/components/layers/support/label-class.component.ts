@@ -73,7 +73,7 @@ export class LabelClassComponent extends EsriEventedBase<__esri.LabelClass> impl
 
   childChanged = new EventEmitter<void>();
 
-  @ContentChild(TextSymbolDirective)
+  @ContentChild(TextSymbolDirective, { static: true })
   set textChild(value: TextSymbolDirective) {
     this.textDirective = value;
   }
