@@ -9,12 +9,19 @@
 
   <group-layer title="Disasters">
     <feature-layer url="https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/Tornado_Warnings/FeatureServer/0">
-      <label-class expression="$feature.STATUS">
-        <text-symbol [color]="[11, 127, 52, 1]" [haloColor]="[255, 255, 255, 0.75]" [haloSize]="haloSize" [fontSize]="12"></text-symbol>
-      </label-class>
-      <action (click)="onActionClick()" [className]="icons.Search" title="Change halo size"></action>
+      <simple-renderer label="Boo">
+        <simple-fill-symbol [color]="'blue'">
+          <simple-line-symbol [color]="'black'" [width]="1"></simple-line-symbol>
+        </simple-fill-symbol>
+      </simple-renderer>
     </feature-layer>
-    <geo-json-layer url="https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson" copyright="USGS Earthquakes" title="Earthquakes"></geo-json-layer>
+<!--    <feature-layer url="https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/Tornado_Warnings/FeatureServer/0">-->
+<!--      <label-class expression="$feature.STATUS">-->
+<!--        <text-symbol [color]="[11, 127, 52, 1]" [haloColor]="[255, 255, 255, 0.75]" [haloSize]="haloSize" [fontSize]="12"></text-symbol>-->
+<!--      </label-class>-->
+<!--      <action (click)="onActionClick()" [className]="icons.ArrowUp" title="Change halo size"></action>-->
+<!--    </feature-layer>-->
+<!--    <geo-json-layer url="https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.geojson" copyright="USGS Earthquakes" title="Earthquakes"></geo-json-layer>-->
   </group-layer>
   <feature-layer url="https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/USA_Counties/FeatureServer/0" [visible]="false"></feature-layer>
 </arcng-map>

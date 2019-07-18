@@ -3,7 +3,7 @@ import { ActionDispatcherService } from '../../services/action-dispatcher.servic
 import { FeatureishLayerBase } from '../../shared/component-bases/featureish-layer-base';
 import { LayerBase } from '../../shared/component-bases/layer-base';
 import { LayerType } from '../../shared/enums';
-import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
+import { loadEsriModules } from '../../shared/utils';
 
 @Component({
   selector: 'geo-json-layer',
@@ -11,16 +11,18 @@ import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
   providers: [{ provide: LayerBase, useExisting: forwardRef(() => GeoJSONLayerComponent)}]
 })
 export class GeoJSONLayerComponent
-  extends FeatureishLayerBase<__esri.GeoJSONLayer, __esri.GeoJSONLayerView>
+  extends FeatureishLayerBase<__esri.GeoJSONLayer, __esri.GeoJSONLayerView, __esri.GeoJSONLayerProperties>
   implements OnInit {
 
   @Input()
   set legendEnabled(value: boolean) {
-    this.changeField('legendEnabled', value);
+    this.initOrChangeValueField('legendEnabled', value);
   }
   @Input()
   set url(value: string) {
-    this.changeField('url', value);
+    if (this.instance == null) {
+      this.initializeField('url', value);
+    }
   }
 
   layerType: LayerType = LayerType.GeoJSONLayer;
@@ -32,8 +34,7 @@ export class GeoJSONLayerComponent
   async ngOnInit() {
     type modules = [typeof import ('esri/layers/GeoJSONLayer')];
     const [ GeoJsonLayer ] = await loadEsriModules<modules>(['esri/layers/GeoJSONLayer']);
-    const params = createCtorParameterObject<__esri.FeatureLayerProperties>(this);
-    this.instance = new GeoJsonLayer(params);
+    this.instance = new GeoJsonLayer(this.initializer);
     this.configureEsriEvents();
   }
 }

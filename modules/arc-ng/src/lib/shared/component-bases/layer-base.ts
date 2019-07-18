@@ -13,27 +13,51 @@ export interface LayerViewEvent<T extends __esri.LayerView> {
   layerView: T;
 }
 
-export abstract class LayerBase<T extends __esri.Layer = __esri.Layer, V extends __esri.LayerView = __esri.LayerView>
-  extends EsriEventedBase<T> implements OnDestroy {
+export abstract class LayerBase<T extends __esri.Layer = __esri.Layer,
+                                V extends __esri.LayerView = __esri.LayerView,
+                                C extends __esri.LayerProperties = __esri.LayerProperties>
+  extends EsriEventedBase<T, C>
+  implements OnDestroy {
+
   @Input()
   set id(value: string) {
-    this.changeField('id', value);
+    if (this.instance == null) {
+      this.initializeField('id', value);
+    } else {
+      this.changeField('id', value);
+    }
   }
   @Input()
   set listMode(value: ListMode) {
-    this.changeField('listMode', value);
+    if (this.instance == null) {
+      this.initializeField('listMode', value);
+    } else {
+      this.changeField('listMode', value);
+    }
   }
   @Input()
   set opacity(value: number) {
-    this.changeField('opacity', value);
+    if (this.instance == null) {
+      this.initializeField('opacity', value);
+    } else {
+      this.changeField('opacity', value);
+    }
   }
   @Input()
   set title(value: string) {
-    this.changeField('title', value);
+    if (this.instance == null) {
+      this.initializeField('title', value);
+    } else {
+      this.changeField('title', value);
+    }
   }
   @Input()
   set visible(value: boolean) {
-    this.changeField('visible', value);
+    if (this.instance == null) {
+      this.initializeField('visible', value);
+    } else {
+      this.changeField('visible', value);
+    }
   }
 
   @Output() layerViewCreated = new EsriEventEmitter<LayerViewEvent<V>>('layerview-create');

@@ -1,9 +1,8 @@
-/* tslint:disable:variable-name */
 import { Input } from '@angular/core';
 import { UIPosition } from '../enums';
 import { EsriEventedBase } from './esri-component-base';
 
-export abstract class WidgetBase<T extends __esri.Widget> extends EsriEventedBase<T> {
+export abstract class WidgetBase<T extends __esri.Widget, C extends __esri.WidgetProperties> extends EsriEventedBase<T, C> {
   @Input()
   set id(value: string) {
     this.changeField('id', value);
@@ -14,9 +13,9 @@ export abstract class WidgetBase<T extends __esri.Widget> extends EsriEventedBas
   }
   @Input()
   set uiPosition(value: UIPosition) {
-    this.__uiPosition = value;
+    this._uiPosition = value;
   }
 
-  protected __uiPosition: UIPosition = UIPosition.Manual;
+  protected _uiPosition: UIPosition = UIPosition.Manual;
 }
 

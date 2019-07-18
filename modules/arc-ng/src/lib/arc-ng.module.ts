@@ -11,6 +11,9 @@ import { TextSymbolDirective } from './components/symbols/text-symbol.directive'
 import { BasemapGalleryDirective } from './components/widgets/basemap-gallery.directive';
 import { ExpandDirective } from './components/widgets/expand.directive';
 import { LayerListDirective } from './components/widgets/layer-list.directive';
+import { SimpleRendererComponent } from './components/layers/renderers/simple-renderer.component';
+import { SimpleFillSymbolComponent } from './components/symbols/simple-fill-symbol.component';
+import { SimpleLineSymbolDirective } from './components/symbols/simple-line-symbol.directive';
 
 const loaderToken = new InjectionToken<ILoadScriptOptions>('ILoadScriptOptions');
 
@@ -36,6 +39,9 @@ const publicComponents = [
   GroupLayerComponent,
   FeatureLayerComponent,
   GeoJSONLayerComponent,
+  SimpleRendererComponent,
+  SimpleFillSymbolComponent,
+  SimpleLineSymbolDirective
 ];
 
 @NgModule({

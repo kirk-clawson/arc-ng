@@ -3,7 +3,7 @@ import { ActionDispatcherService } from '../../services/action-dispatcher.servic
 import { FeatureishLayerBase } from '../../shared/component-bases/featureish-layer-base';
 import { LayerBase } from '../../shared/component-bases/layer-base';
 import { LayerType } from '../../shared/enums';
-import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
+import { loadEsriModules } from '../../shared/utils';
 
 @Component({
   selector: 'feature-layer',
@@ -11,33 +11,34 @@ import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
   providers: [{ provide: LayerBase, useExisting: forwardRef(() => FeatureLayerComponent)}]
 })
 export class FeatureLayerComponent
-  extends FeatureishLayerBase<__esri.FeatureLayer, __esri.FeatureLayerView>
+  extends FeatureishLayerBase<__esri.FeatureLayer, __esri.FeatureLayerView, __esri.FeatureLayerProperties>
   implements OnInit {
 
   @Input()
   set layerId(value: number) {
-    this.changeField('layerId', value);
+    this.initOrChangeValueField('layerId', value);
   }
   @Input()
   set legendEnabled(value: boolean) {
-    this.changeField('legendEnabled', value);
+    this.initOrChangeValueField('legendEnabled', value);
   }
   @Input()
   set outFields(value: string | string[]) {
     const items = Array.isArray(value) ? value : value.split(',');
-    this.changeField('outFields', items);
+    this.initOrChangeValueField('outFields', items);
   }
   @Input()
   set portalId(value: string) {
     if (this.instance != null) {
       throw new Error(`You cannot ${this.portalSet ? 'change' : 'set'} the portalId value after the layer has been created.`);
+    } else {
+      this.initializeField('portalItem', { id: value });
     }
-    this._portalId = value;
     this.portalSet = true;
   }
   @Input()
   set refreshInterval(value: number) {
-    this.changeField('refreshInterval', value);
+    this.initOrChangeValueField('refreshInterval', value);
   }
   @Input()
   set source(value: __esri.Graphic[]) {
@@ -47,26 +48,24 @@ export class FeatureLayerComponent
       } else {
         this.updateFeatures(value);
       }
+    } else {
+      this.initializeField('source', value);
+      this.sourceSet = true;
     }
-    this._source = value;
-    this.sourceSet = true;
   }
   @Input()
   set url(value: string) {
     if (this.instance != null) {
       throw new Error(`You cannot ${this.urlSet ? 'change' : 'set'} the url value after the layer has been created.`);
+    } else {
+      this.initializeField('url', value);
+      this.urlSet = true;
     }
-    this._url = value;
-    this.urlSet = true;
   }
 
   private sourceSet = false;
   private portalSet = false;
   private urlSet = false;
-  // noinspection JSMismatchedCollectionQueryUpdate
-  private _source: __esri.Graphic[];
-  private _portalId: string;
-  private _url: string;
 
   private get isValid() { return (Number(this.sourceSet) + Number(this.portalSet) + Number(this.urlSet)) === 1; }
   layerType: LayerType = LayerType.FeatureLayer;
@@ -80,8 +79,7 @@ export class FeatureLayerComponent
 
     type modules = [typeof import ('esri/layers/FeatureLayer')];
     const [ FeatureLayer ] = await loadEsriModules<modules>(['esri/layers/FeatureLayer']);
-    const params = createCtorParameterObject<__esri.FeatureLayerProperties>(this);
-    this.instance = new FeatureLayer(params);
+    this.instance = new FeatureLayer(this.initializer);
     this.configureEsriEvents();
   }
 

@@ -1,10 +1,9 @@
 import { AfterContentInit, Component, ContentChild, EventEmitter, Input } from '@angular/core';
-import { take } from 'rxjs/operators';
 import { EsriEventedBase } from '../../../shared/component-bases/esri-component-base';
 import { LayerBase } from '../../../shared/component-bases/layer-base';
 import { DependantChildComponent } from '../../../shared/dependant-child-component';
 import { LayerType, PointLabelPlacement, PolygonPointPlacement, PolylineLabelPlacement } from '../../../shared/enums';
-import { createCtorParameterObject, loadEsriModules } from '../../../shared/utils';
+import { loadEsriModules } from '../../../shared/utils';
 import { TextSymbolDirective } from '../../symbols/text-symbol.directive';
 
 const DEFAULT_SYMBOL = {
@@ -25,49 +24,48 @@ const DEFAULT_SYMBOL = {
   selector: 'label-class',
   template: '<ng-content></ng-content>'
 })
-export class LabelClassComponent extends EsriEventedBase<__esri.LabelClass> implements AfterContentInit, DependantChildComponent {
+export class LabelClassComponent
+  extends EsriEventedBase<__esri.LabelClass, __esri.LabelClassProperties>
+  implements AfterContentInit, DependantChildComponent {
+
   @Input()
   set expression(value: string) {
-    if (this.__expression !== value) {
-      this.__expression = value;
-      switch (this.parentLayerType) {
-        case LayerType.GeoJSONLayer:
-        case LayerType.FeatureLayer:
-          this.changeField('labelExpressionInfo', { expression: value });
-          break;
-        case LayerType.MapImageLayer:
-          this.changeField('labelExpression', value);
-          break;
-      }
+    switch (this.parentLayerType) {
+      case LayerType.GeoJSONLayer:
+      case LayerType.FeatureLayer:
+        this.initOrChangeValueField('labelExpressionInfo', { expression: value });
+        break;
+      case LayerType.MapImageLayer:
+        this.initOrChangeValueField('labelExpression', value);
+        break;
     }
   }
   @Input()
   set labelPlacement(value: PointLabelPlacement | PolylineLabelPlacement | PolygonPointPlacement) {
-    this.changeField('labelPlacement', value);
+    this.initOrChangeValueField('labelPlacement', value);
   }
   @Input()
   set maxScale(value: number) {
-    this.changeField('maxScale', value);
+    this.initOrChangeValueField('maxScale', value);
   }
   @Input()
   set minScale(value: number) {
-    this.changeField('minScale', value);
+    this.initOrChangeValueField('minScale', value);
   }
   @Input()
-  set symbol(value: __esri.TextSymbolProperties | __esri.LabelSymbol3DProperties) {
-    this.setAutoCastField('symbol', value);
+  set symbol(value: __esri.TextSymbolProperties) {
+    // TODO: add 3D capability
+    this.initOrChangeConstructedField('symbol', value, 'esri/symbols/TextSymbol');
   }
   @Input()
   set useCodedValues(value: boolean) {
-    this.changeField('useCodedValues', value);
+    this.initOrChangeValueField('useCodedValues', value);
   }
   @Input()
   set where(value: string) {
-    this.changeField('where', value);
+    this.initOrChangeValueField('where', value);
   }
 
-  // tslint:disable-next-line:variable-name
-  private __expression: string;
   private textDirective: TextSymbolDirective;
   private readonly parentLayerType: LayerType;
 
@@ -86,14 +84,9 @@ export class LabelClassComponent extends EsriEventedBase<__esri.LabelClass> impl
   async ngAfterContentInit() {
     type modules = [typeof import ('esri/layers/support/LabelClass')];
     const [ LabelClass ] = await loadEsriModules<modules>(['esri/layers/support/LabelClass']);
-    this.textDirective.getInstance$().pipe(
-      take(1)
-    ).subscribe(() => {
-      const params = createCtorParameterObject<__esri.LabelClassProperties>(this);
-      params.symbol = this.textDirective.instance || DEFAULT_SYMBOL;
-      this.instance = new LabelClass(params);
-      this.textDirective.replaceInstance(this.instance.symbol);
-      this.textDirective.childChanged.subscribe(() => this.childChanged.emit());
-    });
+
+    this.initializer.symbol = this.textDirective.instance || DEFAULT_SYMBOL;
+    this.instance = new LabelClass(this.initializer);
+    this.textDirective.childChanged.subscribe(() => this.childChanged.emit());
   }
 }

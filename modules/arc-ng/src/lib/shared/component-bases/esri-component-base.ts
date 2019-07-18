@@ -1,8 +1,8 @@
-/* tslint:disable:variable-name */
 import { EventEmitter } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { EsriEmitterBase } from '../esri-emitter-base';
 import { isDependantChild } from '../type-utils';
+import { loadEsriModules } from '../utils';
 
 export class EsriComponentBase<T, C> {
   get initializer(): C {
@@ -16,7 +16,7 @@ export class EsriComponentBase<T, C> {
     this.instanceCreated.emit(value);
   }
   private _instance: T;
-  private _initializer: C;
+  private _initializer: C = {} as any;
 
   instanceCreated = new EventEmitter<T>();
 
@@ -32,11 +32,21 @@ export class EsriComponentBase<T, C> {
     this._instance = newInstance;
   }
 
-  protected initOrChangeField<K extends keyof T & keyof C>(fieldName: K, value: C[K] extends T[K] ? T[K] : never): void {
+  protected initOrChangeValueField<K extends keyof T & keyof C>(fieldName: K, value: C[K] extends T[K] ? T[K] : never): void {
     if (this.instance == null) {
       this.initializeField(fieldName, value as any);
     } else {
       this.changeField(fieldName, value);
+    }
+  }
+
+  protected initOrChangeConstructedField<K extends keyof T & keyof C>(fieldName: K, value: C[K], moduleName: string): void {
+    if (this.instance == null) {
+      this.initializeField(fieldName, value);
+    } else {
+      loadEsriModules<[{ new(p1: C[K]): T[K] }]>([moduleName]).then(([moduleCtor]) => {
+        this.changeField(fieldName, new moduleCtor(value));
+      });
     }
   }
 
@@ -52,22 +62,6 @@ export class EsriComponentBase<T, C> {
       }
     }
   }
-
-  // protected setAutoCastField<K extends keyof T>(fieldName: K, value: EsriAutoCast<T[K]>): void;
-  // protected setAutoCastField<K extends keyof T>(fieldName: K, value: any, constructionOnly: true): void;
-  // protected setAutoCastField<K extends keyof T>(fieldName: K, value: EsriAutoCast<T[K]> | any, constructionOnly?: boolean): void {
-  //   const localField = '_' + fieldName;
-  //   if (this[localField] !== value) {
-  //     this[localField] = value;
-  //     if (this.__instance != null) {
-  //       if (constructionOnly === true) throw new Error(`'${fieldName} cannot be set after the object has been constructed`);
-  //       this.__instance[fieldName] = value;
-  //       if (isDependantChild(this)) {
-  //         this.childChanged.emit();
-  //       }
-  //     }
-  //   }
-  // }
 }
 
 export type EsriEventedTypes = __esri.Accessor | (__esri.Accessor & __esri.Evented) | __esri.MapView;

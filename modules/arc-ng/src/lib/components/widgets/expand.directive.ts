@@ -3,43 +3,43 @@ import { EsriEventedBase } from '../../shared/component-bases/esri-component-bas
 import { WidgetMode } from '../../shared/enums';
 import { EsriWatchEmitter } from '../../shared/esri-emitters';
 import { IconClass } from '../../shared/esri-icons';
-import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
+import { loadEsriModules } from '../../shared/utils';
 
 @Directive({
   selector: '[arcngExpand]'
 })
-export class ExpandDirective extends EsriEventedBase<__esri.Expand> implements OnDestroy {
+export class ExpandDirective extends EsriEventedBase<__esri.Expand, __esri.ExpandProperties> implements OnDestroy {
   @Input()
   set autoCollapse(value: boolean) {
-    this.changeField('autoCollapse', value);
+    this.initOrChangeValueField('autoCollapse', value);
   }
   @Input()
   set collapseIconClass(value: IconClass) {
-    this.changeField('collapseIconClass', value);
+    this.initOrChangeValueField('collapseIconClass', value);
   }
   @Input()
   set collapseTooltip(value: string) {
-    this.changeField('collapseTooltip', value);
+    this.initOrChangeValueField('collapseTooltip', value);
   }
   @Input()
   set expandIconClass(value: IconClass) {
-    this.changeField('expandIconClass', value);
+    this.initOrChangeValueField('expandIconClass', value);
   }
   @Input()
   set expandTooltip(value: string) {
-    this.changeField('expandTooltip', value);
+    this.initOrChangeValueField('expandTooltip', value);
   }
   @Input()
   set expandGroup(value: string) {
-    this.changeField('group', value);
+    this.initOrChangeValueField('group', value);
   }
   @Input()
   set iconNumber(value: number) {
-    this.changeField('iconNumber', value);
+    this.initOrChangeValueField('iconNumber', value);
   }
   @Input()
   set expandMode(value: WidgetMode) {
-    this.changeField('mode', value);
+    this.initOrChangeValueField('mode', value);
   }
   @Input()
   set expanded(value: boolean) {
@@ -62,12 +62,11 @@ export class ExpandDirective extends EsriEventedBase<__esri.Expand> implements O
     type modules = [typeof import ('esri/widgets/Expand')];
     const [ Expand ] = await loadEsriModules<modules>(['esri/widgets/Expand']);
 
-    const params = createCtorParameterObject<__esri.ExpandProperties>(this);
-    params.view = view;
-    params.content = content;
-    params.id = `${content.id}-expander`;
-    if (container != null) params.container = container;
-    this.instance = new Expand(params);
+    this.initializer.view = view;
+    this.initializer.content = content;
+    this.initializer.id = `${content.id}-expander`;
+    if (container != null) this.initializer.container = container;
+    this.instance = new Expand(this.initializer);
     this.configureEsriEvents();
   }
 

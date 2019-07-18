@@ -2,35 +2,57 @@ import { AfterContentInit, ContentChildren, Input, QueryList } from '@angular/co
 import { combineLatest, Observable, race } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { LabelClassComponent } from '../../components/layers/support/label-class.component';
-import { FeatureishLayerTypes } from '../type-utils';
+import { FeatureishLayerConstructorTypes, FeatureishLayerTypes, FeatureishLayerViewTypes } from '../type-utils';
 import { VisualLayerBase } from './visual-layer-base';
 
-export abstract class FeatureishLayerBase<T extends FeatureishLayerTypes, V extends __esri.LayerView>
-  extends VisualLayerBase<T, V>
+export abstract class FeatureishLayerBase<T extends FeatureishLayerTypes,
+                                          V extends FeatureishLayerViewTypes,
+                                          C extends FeatureishLayerConstructorTypes>
+  extends VisualLayerBase<T, V, C>
   implements AfterContentInit {
   @Input()
   set copyright(value: string) {
-    this.changeField('copyright', value);
+    if (this.instance == null) {
+      this.initializeField('copyright', value);
+    } else {
+      this.changeField('copyright', value);
+    }
   }
   @Input()
   set definitionExpression(value: string) {
-    this.changeField('definitionExpression', value);
+    if (this.instance == null) {
+      this.initializeField('definitionExpression', value);
+    } else {
+      this.changeField('definitionExpression', value);
+    }
   }
   @Input()
   set labelsVisible(value: boolean) {
-    this.changeField('labelsVisible', value);
+    if (this.instance == null) {
+      this.initializeField('labelsVisible', value);
+    } else {
+      this.changeField('labelsVisible', value);
+    }
   }
   @Input()
   set objectIdField(value: string) {
-    this.changeField('objectIdField', value);
+    if (this.instance == null) {
+      this.initializeField('objectIdField', value);
+    } else {
+      this.changeField('objectIdField', value);
+    }
   }
   @Input()
   set popupEnabled(value: boolean) {
-    this.changeField('popupEnabled', value);
+    if (this.instance == null) {
+      this.initializeField('popupEnabled', value);
+    } else {
+      this.changeField('popupEnabled', value);
+    }
   }
   @Input()
-  set spatialReference(value: __esri.SpatialReference) {
-    this.changeField('spatialReference', value);
+  set spatialReference(value: __esri.SpatialReferenceProperties) {
+    this.initOrChangeConstructedField('spatialReference', value, 'esri/geometry/SpatialReference');
   }
 
   @ContentChildren(LabelClassComponent) labelingInfo: QueryList<LabelClassComponent>;

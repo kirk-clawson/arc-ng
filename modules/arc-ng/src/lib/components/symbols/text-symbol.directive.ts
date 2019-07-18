@@ -1,26 +1,26 @@
-/* tslint:disable:variable-name */
-import { Directive, EventEmitter, Input, OnInit } from '@angular/core';
-import { EsriComponentBase } from '../../shared/component-bases/esri-component-base';
+import { Directive, EventEmitter, Input } from '@angular/core';
 import { DependantChildComponent } from '../../shared/dependant-child-component';
 import { HorizontalAlignment, VerticalAlignment } from '../../shared/enums';
-import { AutoCastColor, EsriAutoCast } from '../../shared/type-utils';
-import { createCtorParameterObject, trimEmptyFields } from '../../shared/utils';
+import { AutoCastColor } from '../../shared/type-utils';
+import { EsriAutoCastComponentBase } from '../../shared/component-bases/esri-auto-cast-component-base';
 
 @Directive({
   selector: 'text-symbol'
 })
-export class TextSymbolDirective extends EsriComponentBase<EsriAutoCast<__esri.TextSymbol>> implements DependantChildComponent, OnInit {
+export class TextSymbolDirective
+  extends EsriAutoCastComponentBase<__esri.TextSymbolProperties>
+  implements DependantChildComponent {
   @Input()
   set angle(value: number) {
     this.changeField('angle', value);
   }
   @Input()
   set backgroundColor(value: AutoCastColor) {
-    this.setAutoCastField('backgroundColor', value);
+    this.changeField('backgroundColor', value);
   }
   @Input()
   set borderLineColor(value: AutoCastColor) {
-    this.setAutoCastField('borderLineColor', value);
+    this.changeField('borderLineColor', value);
   }
   @Input()
   set borderLineSize(value: number) {
@@ -28,15 +28,15 @@ export class TextSymbolDirective extends EsriComponentBase<EsriAutoCast<__esri.T
   }
   @Input()
   set color(value: AutoCastColor) {
-    this.setAutoCastField('color', value);
+    this.changeField('color', value);
   }
   @Input()
   set haloColor(value: AutoCastColor) {
-    this.setAutoCastField('haloColor', value);
+    this.changeField('haloColor', value);
   }
   @Input()
   set haloSize(value: number | string) {
-    this.setAutoCastField('haloSize', value);
+    this.changeField('haloSize', value);
   }
   @Input()
   set horizontalAlignment(value: HorizontalAlignment) {
@@ -60,47 +60,42 @@ export class TextSymbolDirective extends EsriComponentBase<EsriAutoCast<__esri.T
   }
   @Input()
   set xOffset(value: number | string) {
-    this.setAutoCastField('xoffset', value);
+    this.changeField('xoffset', value);
   }
   @Input()
   set yOffset(value: number | string) {
-    this.setAutoCastField('yoffset', value);
+    this.changeField('xoffset', value);
   }
 
   @Input()
   set fontFamily(value: string) {
-    this.__fontFamily = value;
+    const newFont: __esri.FontProperties = { ...this.instance.font, family: value };
+    this.changeField('font', newFont);
   }
   @Input()
-  set fontStyle(value: string) {
-    this.__fontStyle = value;
+  set fontStyle(value: __esri.FontProperties['style']) {
+    const newFont: __esri.FontProperties = { ...this.instance.font, style: value };
+    this.changeField('font', newFont);
   }
   @Input()
-  set fontWeight(value: string) {
-    this.__fontWeight = value;
+  set fontWeight(value: __esri.FontProperties['weight']) {
+    const newFont: __esri.FontProperties = { ...this.instance.font, weight: value };
+    this.changeField('font', newFont);
   }
   @Input()
   set fontSize(value: number | string) {
-    this.__fontSize = value;
+    const newFont: __esri.FontProperties = { ...this.instance.font, size: value };
+    this.changeField('font', newFont);
   }
-  private __fontFamily: string;
-  private __fontStyle: string;
-  private __fontWeight: string;
-  private __fontSize: number | string;
-
-  // noinspection JSUnusedLocalSymbols
-  private _type = 'text';
+  @Input()
+  set fontDecoration(value: __esri.FontProperties['decoration']) {
+    const newFont: __esri.FontProperties = { ...this.instance.font, decoration: value };
+    this.changeField('font', newFont);
+  }
 
   childChanged = new EventEmitter<void>();
 
-  ngOnInit(): void {
-    const result: any = createCtorParameterObject(this);
-    result.font = trimEmptyFields({
-      family: this.__fontFamily,
-      style: this.__fontStyle,
-      weight: this.__fontWeight,
-      size: this.__fontSize
-    });
-    this.instance = result;
+  constructor() {
+    super('text');
   }
 }

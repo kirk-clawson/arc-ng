@@ -41,88 +41,72 @@ export class MapComponent
 
   @Input()
   set zoom(value: number) {
-    this.initOrChangeField('zoom', value);
+    this.initOrChangeValueField('zoom', value);
   }
 
   @Input()
   set viewpoint(value: __esri.ViewpointProperties) {
-    if (this.instance == null) {
-      this.initializeField('viewpoint', value);
-    } else {
-      type ModuleTypes = [ typeof import ('esri/Viewpoint') ];
-      loadEsriModules<ModuleTypes>(['esri/Viewpoint']).then(([Viewpoint]) => {
-        this.changeField('viewpoint', new Viewpoint(value));
-      });
-    }
+    this.initOrChangeConstructedField('viewpoint', value, 'esri/Viewpoint');
   }
 
   @Input()
   set spatialReference(value: __esri.SpatialReferenceProperties) {
-    if (this.instance == null) {
-      this.initializeField('spatialReference', value);
-    } else {
-      type ModuleTypes = [ typeof import ('esri/geometry/SpatialReference') ];
-      loadEsriModules<ModuleTypes>(['esri/geometry/SpatialReference']).then(([SpatialReference]) => {
-        this.changeField('spatialReference', new SpatialReference(value));
-      });
-    }
+    this.initOrChangeConstructedField('spatialReference', value, 'esri/geometry/SpatialReference');
   }
 
   @Input()
   set scale(value: number) {
-    this.initOrChangeField('scale', value);
+    this.initOrChangeValueField('scale', value);
   }
 
   @Input()
   set rotation(value: number) {
-    this.initOrChangeField('rotation', value);
+    this.initOrChangeValueField('rotation', value);
   }
 
   @Input()
   set resizeAlign(value: resizeAlign) {
-    this.initOrChangeField('resizeAlign', value);
+    this.initOrChangeValueField('resizeAlign', value);
   }
 
   @Input()
   set popup(value: __esri.PopupProperties) {
-    if (this.instance == null) {
-      this.initializeField('popup', value);
-    } else {
-      type ModuleTypes = [ typeof import ('esri/widgets/Popup') ];
-      loadEsriModules<ModuleTypes>(['esri/widgets/Popup']).then(([Popup]) => {
-        this.changeField('popup', new Popup(value));
-      });
-    }
+    this.initOrChangeConstructedField('popup', value, 'esri/widgets/Popup');
   }
 
   @Input()
   set padding(value: __esri.ViewPadding) {
-    this.initOrChangeField('padding', value);
+    this.initOrChangeValueField('padding', value);
   }
 
   @Input()
   set highlightOptions(value: __esri.MapViewHighlightOptionsProperties) {
-    this.initOrChangeField('highlightOptions', value);
+    if (this.instance == null) {
+      this.initializeField('highlightOptions', value);
+    } else {
+      // temporary
+      throw new Error('Highlight Options can only be set once at startup');
+    }
   }
 
   @Input()
   set extent(value: __esri.ExtentProperties) {
-    this.setAutoCastField('extent', value);
+    this.initOrChangeConstructedField('extent', value, 'esri/geometry/Extent');
   }
 
   @Input()
   set constraints(value: __esri.MapViewConstraints) {
-    this.initOrChangeField('constraints', value);
+    this.initOrChangeValueField('constraints', value);
   }
 
   @Input()
   set center(value: __esri.PointProperties | number[]) {
-    this.setAutoCastField('center', value);
+    this.initOrChangeConstructedField('center', value, 'esri/geometry/Point');
   }
 
   @Input()
   set breakpoints(value: __esri.BreakpointsOwnerBreakpoints) {
-    this.initOrChangeField('breakpoints', value);
+    this.initOrChangeValueField('breakpoints', value);
   }
 
   @Input()
@@ -168,7 +152,7 @@ export class MapComponent
   private map: import ('esri/Map');
 
   @ViewChild('mapContainer', { static: true }) mapContainer: ElementRef;
-  @ContentChildren(WidgetBase) childWidgets: QueryList<WidgetBase<__esri.Widget>>;
+  @ContentChildren(WidgetBase) childWidgets: QueryList<WidgetBase<__esri.Widget, any>>;
   @ContentChildren(LayerBase) childLayers: QueryList<LayerBase>;
 
   async ngOnInit() {

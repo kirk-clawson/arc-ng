@@ -2,7 +2,7 @@ import { Directive, forwardRef, OnDestroy, OnInit, Optional } from '@angular/cor
 import { take } from 'rxjs/operators';
 import { ActionDispatcherService } from '../../services/action-dispatcher.service';
 import { WidgetBase } from '../../shared/component-bases/widget-base';
-import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
+import { loadEsriModules } from '../../shared/utils';
 import { MapComponent } from '../map/map.component';
 import { ExpandDirective } from './expand.directive';
 
@@ -10,7 +10,7 @@ import { ExpandDirective } from './expand.directive';
   selector: 'layer-list',
   providers: [{ provide: WidgetBase, useExisting: forwardRef(() => LayerListDirective)}]
 })
-export class LayerListDirective extends WidgetBase<__esri.LayerList> implements OnInit, OnDestroy {
+export class LayerListDirective extends WidgetBase<__esri.LayerList, __esri.LayerListProperties> implements OnInit, OnDestroy {
 
   private triggerHandle: IHandle;
 
@@ -32,16 +32,15 @@ export class LayerListDirective extends WidgetBase<__esri.LayerList> implements 
       if (this.expander != null) {
         this.container = document.createElement('div');
       }
-      const params: __esri.LayerListProperties = createCtorParameterObject(this);
-      params.view = view;
-      params.listItemCreatedFunction = this.listItemCreated.bind(this);
-      this.instance = new LayerListWidget(params);
+      this.initializer.view = view;
+      this.initializer.listItemCreatedFunction = this.listItemCreated.bind(this);
+      this.instance = new LayerListWidget(this.initializer);
       this.triggerHandle = this.instance.on('trigger-action', e => this.dispatcherService.toggleAction(e.action.id));
       if (this.expander != null) {
         await this.expander.createInstance(view, this.instance, localContainer);
-        this.parent.attachWidget(this.expander.instance, this.__uiPosition);
+        this.parent.attachWidget(this.expander.instance, this._uiPosition);
       } else {
-        this.parent.attachWidget(this.instance, this.__uiPosition);
+        this.parent.attachWidget(this.instance, this._uiPosition);
       }
     });
   }

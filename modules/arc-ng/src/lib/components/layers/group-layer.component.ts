@@ -4,7 +4,7 @@ import { map, take } from 'rxjs/operators';
 import { ActionDispatcherService } from '../../services/action-dispatcher.service';
 import { LayerBase } from '../../shared/component-bases/layer-base';
 import { LayerType } from '../../shared/enums';
-import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
+import { loadEsriModules } from '../../shared/utils';
 import { MapComponent } from '../map/map.component';
 
 export type groupVisibilityMode = 'independent' | 'inherited' | 'exclusive';
@@ -14,15 +14,20 @@ export type groupVisibilityMode = 'independent' | 'inherited' | 'exclusive';
   template: '<ng-content></ng-content>',
   providers: [{ provide: LayerBase, useExisting: forwardRef(() => GroupLayerComponent)}]
 })
-export class GroupLayerComponent extends LayerBase<__esri.GroupLayer, __esri.LayerView> implements OnInit, AfterContentInit {
+export class GroupLayerComponent
+  extends LayerBase<__esri.GroupLayer, __esri.LayerView, __esri.GroupLayerProperties>
+  implements OnInit, AfterContentInit {
+
   @Input()
   set portalId(value: string) {
-    this.setAutoCastField('portalItem', { id: value }, true);
-    this.portalSet = true;
+    if (this.instance == null) {
+      this.initializeField('portalItem', { id: value });
+      this.portalSet = true;
+    }
   }
   @Input()
   set visibilityMode(value: groupVisibilityMode) {
-    this.changeField('visibilityMode', value);
+    this.initOrChangeValueField('visibilityMode', value);
   }
 
   private portalSet = false;
@@ -38,9 +43,7 @@ export class GroupLayerComponent extends LayerBase<__esri.GroupLayer, __esri.Lay
   async ngOnInit() {
     type modules = [typeof import ('esri/layers/GroupLayer')];
     const [ GroupLayer ] = await loadEsriModules<modules>(['esri/layers/GroupLayer']);
-
-    const params = createCtorParameterObject<__esri.GroupLayerProperties>(this);
-    this.instance = new GroupLayer(params);
+    this.instance = new GroupLayer(this.initializer);
     this.configureEsriEvents();
   }
 

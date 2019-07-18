@@ -3,7 +3,7 @@ import { take } from 'rxjs/operators';
 import { WidgetBase } from '../../shared/component-bases/widget-base';
 import { EsriWatchEmitter } from '../../shared/esri-emitters';
 import { IconClass } from '../../shared/esri-icons';
-import { createCtorParameterObject, loadEsriModules } from '../../shared/utils';
+import { loadEsriModules } from '../../shared/utils';
 import { MapComponent } from '../map/map.component';
 import { ExpandDirective } from './expand.directive';
 import { isBasemapArray } from '../../shared/type-utils';
@@ -12,34 +12,35 @@ import { isBasemapArray } from '../../shared/type-utils';
   selector: 'basemap-gallery',
   providers: [{ provide: WidgetBase, useExisting: forwardRef(() => BasemapGalleryDirective)}]
 })
-export class BasemapGalleryDirective extends WidgetBase<__esri.BasemapGallery> implements OnInit, OnDestroy {
+export class BasemapGalleryDirective
+  extends WidgetBase<__esri.BasemapGallery, __esri.BasemapGalleryProperties>
+  implements OnInit, OnDestroy {
+
   @Input()
   set label(value: string) {
-    this.changeField('label', value);
+    this.initOrChangeValueField('label', value);
   }
   @Input()
   set iconClass(value: IconClass) {
-    this.changeField('iconClass', value);
+    this.initOrChangeValueField('iconClass', value);
   }
   @Input()
-  set activeBasemap(value: __esri.Basemap) {
-    this.changeField('activeBasemap', value);
+  set activeBasemap(value: __esri.BasemapProperties) {
+    this.initOrChangeConstructedField('activeBasemap', value, 'esri/Basemap');
   }
   @Input()
   set Basemaps(value: string | string[] | __esri.Basemap[]) {
     const items: string[] | __esri.Basemap[] = Array.isArray(value) ? value : value.split(',');
     if (isBasemapArray(items)) {
-      this.__basemaps = items;
+      this._basemaps = items;
     } else {
-      this.__basemapIds = items.map(b => b.trim());
+      this._basemapIds = items.map(b => b.trim());
     }
   }
   @Output() activeBasemapChange = new EsriWatchEmitter<__esri.Basemap>('activeBasemap');
 
-  // tslint:disable-next-line:variable-name
-  private __basemaps: __esri.Basemap[];
-  // tslint:disable-next-line:variable-name
-  private __basemapIds: string[];
+  private _basemaps: __esri.Basemap[];
+  private _basemapIds: string[];
 
   constructor(private parent: MapComponent, @Optional() private expander?: ExpandDirective) {
     super();
@@ -61,26 +62,23 @@ export class BasemapGalleryDirective extends WidgetBase<__esri.BasemapGallery> i
     this.parent.getInstance$().pipe(
       take(1)
     ).subscribe(async view => {
-      // tslint:disable-next-line:no-string-literal
-      const localContainer = this['_container'];
       if (this.expander != null) {
         this.container = document.createElement('div');
       }
-      const params = createCtorParameterObject<__esri.BasemapGalleryProperties>(this);
-      params.view = view;
-      if (this.__basemapIds != null && this.__basemapIds.length > 0) {
-        this.__basemaps = this.__basemapIds.map(id => Basemap.fromId(id));
+      this.initializer.view = view;
+      if (this._basemapIds != null && this._basemapIds.length > 0) {
+        this._basemaps = this._basemapIds.map(id => Basemap.fromId(id));
       }
-      if (this.__basemaps != null && this.__basemaps.length > 0) {
-        params.source = new BasemapSource({ basemaps: this.__basemaps });
+      if (this._basemaps != null && this._basemaps.length > 0) {
+        this.initializer.source = new BasemapSource({ basemaps: this._basemaps });
       }
-      this.instance = new BaseMapGallery(params);
+      this.instance = new BaseMapGallery(this.initializer);
       this.configureEsriEvents();
       if (this.expander != null) {
-        await this.expander.createInstance(view, this.instance, localContainer);
-        this.parent.attachWidget(this.expander.instance, this.__uiPosition);
+        await this.expander.createInstance(view, this.instance, this.initializer.container);
+        this.parent.attachWidget(this.expander.instance, this._uiPosition);
       } else {
-        this.parent.attachWidget(this.instance, this.__uiPosition);
+        this.parent.attachWidget(this.instance, this._uiPosition);
       }
     });
   }
