@@ -14,6 +14,7 @@ import { LayerListDirective } from './components/widgets/layer-list.directive';
 import { SimpleRendererComponent } from './components/layers/renderers/simple-renderer.component';
 import { SimpleFillSymbolComponent } from './components/symbols/simple-fill-symbol.component';
 import { SimpleLineSymbolDirective } from './components/symbols/simple-line-symbol.directive';
+import { VisualVariableDirective } from './components/support/visual-variable.directive';
 
 const loaderToken = new InjectionToken<ILoadScriptOptions>('ILoadScriptOptions');
 
@@ -41,7 +42,8 @@ const publicComponents = [
   GeoJSONLayerComponent,
   SimpleRendererComponent,
   SimpleFillSymbolComponent,
-  SimpleLineSymbolDirective
+  SimpleLineSymbolDirective,
+  VisualVariableDirective
 ];
 
 @NgModule({

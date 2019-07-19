@@ -45,7 +45,7 @@ export class SimpleLineSymbolDirective
     super('simple-line');
   }
 
-  childChanged: EventEmitter<void>;
+  childChanged = new EventEmitter<void>();
 
   ngOnInit(): void {
   }

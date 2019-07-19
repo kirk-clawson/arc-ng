@@ -1,35 +1,40 @@
-import { AfterContentInit, Component, ContentChild, EventEmitter, Input } from '@angular/core';
-import { EsriAutoCastComponentBase } from '../../../shared/component-bases/esri-auto-cast-component-base';
-import { DependantChildComponent } from '../../../shared/dependant-child-component';
+import {
+  AfterViewInit,
+  Component,
+  ContentChild,
+  forwardRef,
+  Input
+} from '@angular/core';
 import { SimpleFillSymbolComponent } from '../../symbols/simple-fill-symbol.component';
+import { RendererBaseComponent } from './renderer-base.component';
 
 @Component({
   selector: 'simple-renderer',
-  template: '<ng-content></ng-content>'
+  template: '<ng-content></ng-content>',
+  providers: [{ provide: RendererBaseComponent, useExisting: forwardRef(() => SimpleRendererComponent)}]
 })
 export class SimpleRendererComponent
-  extends EsriAutoCastComponentBase<__esri.SimpleRendererProperties>
-  implements DependantChildComponent, AfterContentInit  {
+  extends RendererBaseComponent<__esri.SimpleRendererProperties>
+  implements AfterViewInit  {
 
   @Input()
   set label(value: string) {
     this.changeField('label', value);
   }
 
-  @ContentChild(SimpleFillSymbolComponent, { static: true })
-  set textChild(value: SimpleFillSymbolComponent) {
+  @ContentChild(SimpleFillSymbolComponent, { static: false })
+  set fillChild(value: SimpleFillSymbolComponent) {
     this.fillComponent = value;
     this.changeField('symbol', value.instance);
   }
 
   private fillComponent: SimpleFillSymbolComponent;
-  childChanged: EventEmitter<void>;
 
   constructor() {
-    super('simple-renderer');
+    super('simple');
   }
 
-  ngAfterContentInit(): void {
+  ngAfterViewInit(): void {
     this.changeField('symbol', this.fillComponent.instance);
     this.fillComponent.childChanged.subscribe(() => this.changeField('symbol', this.fillComponent.instance));
   }

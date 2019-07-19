@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { IconClass, UIPosition } from 'arc-ng';
+import { FillStyles } from 'arc-ng/lib/components/symbols/simple-fill-symbol.component';
 
 @Component({
   selector: 'app-root',
@@ -12,22 +13,17 @@ export class AppComponent {
   title = 'sample-app';
   fontSize = 12;
   haloSize = '1px';
+  fillStyle: FillStyles = 'cross';
 
   onMapReady(event: __esri.MapView) {
     console.log('Map is Ready', event);
   }
 
   onActionClick() {
-    switch (this.haloSize) {
-      case '1px':
-        this.haloSize = '2px';
-        break;
-      case '2px':
-        this.haloSize = '3px';
-        break;
-      case '3px':
-        this.haloSize = '1px';
-        break;
+    if (this.fillStyle === 'cross') {
+      this.fillStyle = 'diagonal-cross';
+    } else {
+      this.fillStyle = 'cross';
     }
   }
 }

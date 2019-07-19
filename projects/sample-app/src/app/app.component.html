@@ -3,15 +3,35 @@
 
   <basemap-gallery arcngExpand expandTooltip="Expand Basemap Gallery" expandGroup="top-right" [uiPosition]="uiPositions.TopRight"
                    Basemaps="streets-vector, streets-navigation-vector, streets-relief-vector, gray-vector, streets-night-vector, dark-gray-vector, topo-vector"
+                   [activeBasemap]="{ id: 'gray-vector' }"
   ></basemap-gallery>
   <layer-list arcngExpand expandTooltip="Expand Layer List" expandGroup="top-right"
               [uiPosition]="uiPositions.TopRight"></layer-list>
 
-  <group-layer title="Disasters">
+  <group-layer title="Valassis Zips">
+    <feature-layer title="Zip Boundaries" url="https://vallomimpor1vm.val.vlss.local/arcgis-server/rest/services/Hosted/ZIP_Top_Vars_CopyAllData/FeatureServer/0">
+    </feature-layer>
+<!--    <feature-layer url="https://vallomimpor1vm.val.vlss.local/arcgis-server/rest/services/Hosted/ZIP_Top_Vars_CopyAllData/FeatureServer/0">-->
+<!--      <simple-renderer label="Owner Group Valassis">-->
+<!--        <simple-fill-symbol [color]="[0,0,255,0.2]">-->
+<!--          <simple-line-symbol [color]="[0,0,0,0]" [width]="1"></simple-line-symbol>-->
+<!--        </simple-fill-symbol>-->
+<!--      </simple-renderer>-->
+<!--    </feature-layer>-->
+  </group-layer>
+  <group-layer title="Disasters" [visible]="false">
     <feature-layer url="https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/Tornado_Warnings/FeatureServer/0">
       <simple-renderer label="Boo">
-        <simple-fill-symbol [color]="'blue'">
-          <simple-line-symbol [color]="'black'" [width]="1"></simple-line-symbol>
+        <simple-fill-symbol [fillStyle]="fillStyle">
+          <simple-line-symbol [color]="[0,0,0,1]" [width]="1"></simple-line-symbol>
+        </simple-fill-symbol>
+      </simple-renderer>
+      <action (click)="onActionClick()" [className]="icons.Lightbulb" title="Change fill"></action>
+    </feature-layer>
+    <feature-layer url="https://services.arcgis.com/V6ZHFr6zdgNZuVG0/ArcGIS/rest/services/Tornado_Warnings/FeatureServer/0">
+      <simple-renderer label="Boo">
+        <simple-fill-symbol [color]="[0,0,255,0.2]">
+          <simple-line-symbol [color]="[0,0,0,0]" [width]="1"></simple-line-symbol>
         </simple-fill-symbol>
       </simple-renderer>
     </feature-layer>

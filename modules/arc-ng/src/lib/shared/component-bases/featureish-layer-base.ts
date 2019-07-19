@@ -1,15 +1,17 @@
-import { AfterContentInit, ContentChildren, Input, QueryList } from '@angular/core';
+import { AfterViewInit, ContentChild, ContentChildren, Input, QueryList } from '@angular/core';
 import { combineLatest, Observable, race } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { LabelClassComponent } from '../../components/layers/support/label-class.component';
 import { FeatureishLayerConstructorTypes, FeatureishLayerTypes, FeatureishLayerViewTypes } from '../type-utils';
 import { VisualLayerBase } from './visual-layer-base';
+import { RendererBaseComponent } from '../../components/layers/renderers/renderer-base.component';
 
 export abstract class FeatureishLayerBase<T extends FeatureishLayerTypes,
                                           V extends FeatureishLayerViewTypes,
                                           C extends FeatureishLayerConstructorTypes>
   extends VisualLayerBase<T, V, C>
-  implements AfterContentInit {
+  implements AfterViewInit {
+
   @Input()
   set copyright(value: string) {
     if (this.instance == null) {
@@ -67,7 +69,17 @@ export abstract class FeatureishLayerBase<T extends FeatureishLayerTypes,
     );
   }
 
-  ngAfterContentInit() {
+  @ContentChild(RendererBaseComponent, { static: false })
+  set rendererInfo(value: RendererBaseComponent<any>) {
+    if (value != null) {
+      this.getInstance$().pipe(take(1)).subscribe(() => {
+        this.changeField('renderer', value.instance);
+        value.childChanged.subscribe(() => this.changeField('renderer', value.instance));
+      });
+    }
+  }
+
+  ngAfterViewInit() {
     this.getInstance$().pipe(
       take(1)
     ).subscribe(() => {
